@@ -4,7 +4,9 @@ import { Lot, CrateAllocation, LotCharge, Party } from './types';
 // Mobile browsers (iOS Safari, Android Chrome) block iframe.contentWindow.print().
 // We detect mobile and inject HTML directly into the main document instead.
 const isMobileBrowser = (): boolean =>
-  /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+  /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent) ||
+  (typeof navigator !== 'undefined' && navigator.maxTouchPoints > 0) ||
+  ('ontouchstart' in window);
 
 function printViaMobileDom(html: string, format: 'a4' | 'receipt'): void {
   // Remove any stale mount point

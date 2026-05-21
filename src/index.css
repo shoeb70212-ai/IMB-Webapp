@@ -401,9 +401,12 @@ body, main, aside, header, div, span, button, input, select, table, th, td {
   html, body {
     overflow: visible !important;
     height: auto !important;
-    width: auto !important;
     background: white !important;
     color: black !important;
+  }
+
+  body:not(.print-receipt) {
+    width: auto !important;
   }
 
   /* Mobile DOM injection: hide React app, show print content */
@@ -476,5 +479,51 @@ body, main, aside, header, div, span, button, input, select, table, th, td {
     padding-top: 6px;
     font-size: 10px;
     color: #64748b;
+  }
+
+  /* Thermal receipt print overrides to force narrow rendering on mobile/tablets */
+  body.print-receipt {
+    width: 80mm !important;
+    max-width: 80mm !important;
+    margin: 0 auto !important;
+    padding: 0 !important;
+    background: white !important;
+  }
+
+  body.print-receipt .print-container {
+    width: 100% !important;
+    max-width: 80mm !important;
+    margin: 0 auto !important;
+    padding: 3mm 2mm !important;
+    border: none !important;
+    box-shadow: none !important;
+    box-sizing: border-box !important;
+    background: white !important;
+  }
+
+  body.print-receipt .print-container * {
+    font-size: 10px !important;
+    line-height: 1.4 !important;
+  }
+
+  body.print-receipt .print-container h3 {
+    font-size: 13px !important;
+    font-weight: 800 !important;
+  }
+
+  body.print-receipt .print-container h4 {
+    font-size: 10.5px !important;
+    font-weight: 700 !important;
+  }
+
+  body.print-receipt .print-container table {
+    width: 100% !important;
+    border-collapse: collapse !important;
+  }
+
+  body.print-receipt .print-container th, 
+  body.print-receipt .print-container td {
+    padding: 2.5px 1px !important;
+    font-size: 9.5px !important;
   }
 }
