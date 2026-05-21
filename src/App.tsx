@@ -22,9 +22,6 @@ export default function App() {
 
   const [activeTabParam, setActiveTabParam] = useState<any>(null);
 
-  // Mobile Sidebar Open State
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-
   // Theme state: dark | light | bazaar
   const [theme, setTheme] = useState<'dark' | 'light' | 'bazaar'>(() => {
     return (localStorage.getItem('ca_theme') as 'dark' | 'light' | 'bazaar') || 'dark';
@@ -61,7 +58,12 @@ export default function App() {
       // 1. Settings
       const storedSettings = localStorage.getItem('ca_settings');
       if (storedSettings) {
-        setBusinessSettings(JSON.parse(storedSettings));
+        setBusinessSettings((prev: any) => {
+          if (JSON.stringify(prev) !== storedSettings) {
+            return JSON.parse(storedSettings);
+          }
+          return prev;
+        });
       }
       
       // 2. Draft lot
@@ -117,7 +119,6 @@ export default function App() {
   const handleNavigate = (tab: string, param?: any) => {
     setActiveTab(tab);
     setActiveTabParam(param || null);
-    setMobileMenuOpen(false);
   };
 
   // Clear lot wizard draft
@@ -302,7 +303,7 @@ export default function App() {
       </aside>
 
       {/* 2. MOBILE BOTTOM NAVIGATION */}
-      <nav className="lg:hidden fixed bottom-0 left-0 right-0 h-16 bg-slate-900/90 backdrop-blur-md border-t border-slate-800/60 flex items-center justify-around z-45 no-print px-2 select-none">
+      <nav className="lg:hidden fixed bottom-0 left-0 right-0 bg-slate-900/90 backdrop-blur-md border-t border-slate-800/60 flex items-center justify-around z-45 no-print px-1 select-none pt-1 pb-[env(safe-area-inset-bottom)] min-h-[56px] box-content">
         <button
           onClick={() => handleNavigate('dashboard')}
           className={`flex flex-col items-center justify-center flex-1 py-1 cursor-pointer transition-colors ${
@@ -327,12 +328,12 @@ export default function App() {
         <div className="flex-1 flex justify-center py-1">
           <button
             onClick={() => handleNavigate('new_lot')}
-            className={`flex items-center justify-center w-12.5 h-12.5 bg-gradient-to-tr from-blue-600 to-blue-700 text-white rounded-full -translate-y-3.5 shadow-lg shadow-blue-500/20 border-4 border-slate-950 active:scale-95 transition-all cursor-pointer relative ${
+            className={`flex items-center justify-center w-11 h-11 bg-gradient-to-tr from-blue-600 to-blue-700 text-white rounded-full -translate-y-2.5 shadow-lg shadow-blue-500/20 border-4 border-slate-950 active:scale-95 transition-all cursor-pointer relative ${
               getMobileActiveTab() === 'new_lot' ? 'from-blue-500 to-blue-600' : ''
             }`}
             title="Create New Lot"
           >
-            <PlusCircle className="w-6.5 h-6.5" />
+            <PlusCircle className="w-5.5 h-5.5" />
             {hasDraft && (
               <span className="absolute top-0.5 right-0.5 w-3 h-3 rounded-full bg-amber-500 border border-slate-950 animate-pulse" />
             )}
@@ -361,12 +362,12 @@ export default function App() {
       </nav>
 
       {/* 3. MAIN WORKSPACE CONTAINER */}
-      <div className="flex-1 flex flex-col overflow-hidden min-w-0 pb-16 lg:pb-0">
+      <div className="flex-1 flex flex-col overflow-hidden min-w-0 pb-[calc(4rem+env(safe-area-inset-bottom))] lg:pb-0">
         
         {/* Mobile header ribbon */}
-        <header className="lg:hidden bg-slate-900 border-b border-slate-850 h-14 flex items-center justify-between px-4 shrink-0 no-print">
-          <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-blue-600/10 border border-blue-500/20 flex items-center justify-center overflow-hidden shrink-0">
+        <header className="lg:hidden bg-slate-900 border-b border-slate-850 h-12 flex items-center justify-between px-3 shrink-0 no-print">
+          <div className="flex items-center gap-2">
+            <div className="w-7 h-7 rounded-md bg-blue-600/10 border border-blue-500/20 flex items-center justify-center overflow-hidden shrink-0">
               {businessSettings.business_logo ? (
                 <img src={businessSettings.business_logo} alt="Brand logo" className="w-full h-full object-contain" />
               ) : (

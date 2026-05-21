@@ -3,7 +3,7 @@ import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from '../db';
 import { Chart, registerables } from 'chart.js';
 import { TrendingUp, Users, DollarSign, Archive, ArrowUpRight, ArrowDownRight, Clock, PlusCircle, Sparkles, AlertTriangle, CheckCircle2, Info, ShieldAlert } from 'lucide-react';
-import { Lot, CashbookEntry, Party } from '../types';
+
 import { generateInsights } from '../utils/insightsEngine';
 
 Chart.register(...registerables);
@@ -39,15 +39,8 @@ export default function Dashboard({ onNavigate }: DashboardProps) {
     }
   }
 
-  // Local state for statistics
-  const [stats, setStats] = useState({
-    cashBalance: 0,
-    unpaidSellers: 0,
-    outstandingCredit: 0,
-    commissionEarned: 0
-  });
-
-  useEffect(() => {
+  // Memoize statistics to avoid unnecessary re-renders and state updates
+  const stats = React.useMemo(() => {
     // 1. Calculate Outstanding Credit (sum of all buyer outstanding balances)
     const outstanding = parties
       .filter(p => p.type === 'buyer')
@@ -72,12 +65,12 @@ export default function Dashboard({ onNavigate }: DashboardProps) {
       .filter(c => c.charge_type === 'commission')
       .reduce((sum, c) => sum + c.amount, 0);
 
-    setStats({
+    return {
       cashBalance,
       unpaidSellers: unpaid,
       outstandingCredit: outstanding,
       commissionEarned: commission
-    });
+    };
   }, [lots, parties, cashbook, charges]);
 
   // Chart Rendering
@@ -202,12 +195,12 @@ export default function Dashboard({ onNavigate }: DashboardProps) {
     .slice(0, 5);
 
   return (
-    <div className="flex-1 overflow-y-auto p-4 lg:p-6 space-y-6 animate-fade-in bg-slate-950 text-slate-200">
+    <div className="flex-1 overflow-y-auto px-3 py-4 lg:p-6 space-y-4 lg:space-y-6 animate-fade-in bg-slate-950 text-slate-200">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 lg:gap-4">
         <div>
-          <h1 className="text-2xl lg:text-3xl font-extrabold tracking-tight text-white font-display">Dashboard Overview</h1>
-          <p className="text-slate-400 text-xs lg:text-sm mt-1">Real-time summaries of mandi transactions and balances.</p>
+          <h1 className="text-xl md:text-2xl lg:text-3xl font-extrabold tracking-tight text-white font-display">Dashboard Overview</h1>
+          <p className="text-slate-400 text-[11px] md:text-xs lg:text-sm mt-0.5 lg:mt-1">Real-time summaries of mandi transactions and balances.</p>
         </div>
         <div className="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto">
           <button
@@ -241,13 +234,13 @@ export default function Dashboard({ onNavigate }: DashboardProps) {
       </div>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-5">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4 lg:gap-5">
         {/* Card 1: Galla */}
-        <div className="glass-panel rounded-2xl p-5 hover:border-emerald-500/30 transition duration-300 relative overflow-hidden group">
+        <div className="glass-panel rounded-2xl p-3.5 lg:p-5 hover:border-emerald-500/30 transition duration-300 relative overflow-hidden group">
           <div className="flex justify-between items-start">
             <div>
               <p className="text-[10px] lg:text-xs font-semibold uppercase tracking-wider text-slate-400">Cash Balance (Galla)</p>
-              <h3 className="text-2xl font-bold font-display mt-2 text-white">₹{stats.cashBalance.toLocaleString('en-IN')}</h3>
+              <h3 className="text-xl lg:text-2xl font-bold font-display mt-1 lg:mt-2 text-white">₹{stats.cashBalance.toLocaleString('en-IN')}</h3>
             </div>
             <div className="p-3 bg-emerald-500/10 rounded-xl text-emerald-400">
               <DollarSign className="w-5 h-5" />
@@ -261,11 +254,11 @@ export default function Dashboard({ onNavigate }: DashboardProps) {
         </div>
 
         {/* Card 2: Unpaid Seller Dues */}
-        <div className="glass-panel rounded-2xl p-5 hover:border-amber-500/30 transition duration-300 relative overflow-hidden group">
+        <div className="glass-panel rounded-2xl p-4 lg:p-5 hover:border-amber-500/30 transition duration-300 relative overflow-hidden group">
           <div className="flex justify-between items-start">
             <div>
               <p className="text-[10px] lg:text-xs font-semibold uppercase tracking-wider text-slate-400">Unpaid Seller Dues</p>
-              <h3 className="text-2xl font-bold font-display mt-2 text-white">₹{stats.unpaidSellers.toLocaleString('en-IN')}</h3>
+              <h3 className="text-xl lg:text-2xl font-bold font-display mt-1 lg:mt-2 text-white">₹{stats.unpaidSellers.toLocaleString('en-IN')}</h3>
             </div>
             <div className="p-3 bg-amber-500/10 rounded-xl text-amber-400">
               <Clock className="w-5 h-5" />
@@ -279,11 +272,11 @@ export default function Dashboard({ onNavigate }: DashboardProps) {
         </div>
 
         {/* Card 3: Outstanding Credits */}
-        <div className="glass-panel rounded-2xl p-5 hover:border-rose-500/30 transition duration-300 relative overflow-hidden group">
+        <div className="glass-panel rounded-2xl p-4 lg:p-5 hover:border-rose-500/30 transition duration-300 relative overflow-hidden group">
           <div className="flex justify-between items-start">
             <div>
               <p className="text-[10px] lg:text-xs font-semibold uppercase tracking-wider text-slate-400">Buyer Outstandings</p>
-              <h3 className="text-2xl font-bold font-display mt-2 text-white">₹{stats.outstandingCredit.toLocaleString('en-IN')}</h3>
+              <h3 className="text-xl lg:text-2xl font-bold font-display mt-1 lg:mt-2 text-white">₹{stats.outstandingCredit.toLocaleString('en-IN')}</h3>
             </div>
             <div className="p-3 bg-rose-500/10 rounded-xl text-rose-400">
               <Users className="w-5 h-5" />
@@ -297,11 +290,11 @@ export default function Dashboard({ onNavigate }: DashboardProps) {
         </div>
 
         {/* Card 4: Commissions Earned */}
-        <div className="glass-panel rounded-2xl p-5 hover:border-blue-500/30 transition duration-300 relative overflow-hidden group">
+        <div className="glass-panel rounded-2xl p-4 lg:p-5 hover:border-blue-500/30 transition duration-300 relative overflow-hidden group">
           <div className="flex justify-between items-start">
             <div>
               <p className="text-[10px] lg:text-xs font-semibold uppercase tracking-wider text-slate-400">Total Commissions</p>
-              <h3 className="text-2xl font-bold font-display mt-2 text-white">₹{stats.commissionEarned.toLocaleString('en-IN')}</h3>
+              <h3 className="text-xl lg:text-2xl font-bold font-display mt-1 lg:mt-2 text-white">₹{stats.commissionEarned.toLocaleString('en-IN')}</h3>
             </div>
             <div className="p-3 bg-blue-500/10 rounded-xl text-blue-400">
               <TrendingUp className="w-5 h-5" />
@@ -318,7 +311,7 @@ export default function Dashboard({ onNavigate }: DashboardProps) {
       {/* Smart Mandi Advisor Panel (Decoupled insights, wrapped in try-catch) */}
       {/* Smart Mandi Advisor Panel (Decoupled insights, wrapped in try-catch) */}
       {(showInsights || loadingInsights) && (
-        <div className="glass-panel rounded-2xl p-5 lg:p-6 border border-blue-500/10 shadow-lg shadow-blue-950/10 relative overflow-hidden group">
+        <div className="glass-panel rounded-2xl p-4 lg:p-6 border border-blue-500/10 shadow-lg shadow-blue-950/10 relative overflow-hidden group">
           {/* Subtle animated light glow behind advisor */}
           <div className="absolute -right-24 -top-24 w-48 h-48 bg-blue-500/5 rounded-full blur-3xl group-hover:bg-blue-500/10 transition-colors duration-500"></div>
           
@@ -414,7 +407,7 @@ export default function Dashboard({ onNavigate }: DashboardProps) {
       {/* Visual Chart & Recents */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Commission Chart */}
-        <div className="lg:col-span-2 glass-panel rounded-2xl p-5 flex flex-col h-[320px] lg:h-[350px]">
+        <div className="lg:col-span-2 glass-panel rounded-2xl p-4 lg:p-5 flex flex-col h-[280px] lg:h-[350px]">
           <div className="flex justify-between items-center mb-4">
             <h3 className="text-sm lg:text-base font-bold text-white font-display">Daily Commission History</h3>
             <span className="text-[10px] text-slate-500 font-mono font-medium">Last 14 Days</span>
@@ -425,7 +418,7 @@ export default function Dashboard({ onNavigate }: DashboardProps) {
         </div>
 
         {/* Top Buyers */}
-        <div className="glass-panel rounded-2xl p-5 flex flex-col h-[320px] lg:h-[350px]">
+        <div className="glass-panel rounded-2xl p-4 lg:p-5 flex flex-col h-[280px] lg:h-[350px]">
           <h3 className="text-sm lg:text-base font-bold text-white font-display mb-4">Top Debtors (Khata)</h3>
           <div className="flex-1 overflow-y-auto space-y-3 pr-1">
             {topBuyers.length === 0 ? (
@@ -456,7 +449,7 @@ export default function Dashboard({ onNavigate }: DashboardProps) {
       </div>
 
       {/* Recent Lots */}
-      <div className="glass-panel rounded-2xl p-4 lg:p-5">
+      <div className="glass-panel rounded-2xl p-3 lg:p-5">
         <div className="flex justify-between items-center mb-4">
           <h3 className="text-sm lg:text-base font-bold text-white font-display">Recent Arrivals & Lots</h3>
           <button 
@@ -524,7 +517,7 @@ export default function Dashboard({ onNavigate }: DashboardProps) {
             {/* Mobile Card-based View */}
             <div className="md:hidden space-y-3">
               {recentLots.map(l => (
-                <div key={l.id} className="p-4 bg-slate-950/40 border border-slate-800/80 rounded-2xl flex flex-col gap-2">
+                <div key={l.id} className="p-3 bg-slate-950/40 border border-slate-800/80 rounded-2xl flex flex-col gap-2">
                   <div className="flex justify-between items-center">
                     <span className="font-mono font-bold text-white text-xs">{l.id}</span>
                     <span className={`px-2 py-0.5 rounded-full text-[9px] uppercase font-extrabold tracking-wider ${

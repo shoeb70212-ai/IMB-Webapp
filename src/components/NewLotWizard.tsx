@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db, generateId } from '../db';
-import { Party, Lot, CrateAllocation, LotCharge, PaymentMode, SystemSettings } from '../types';
+import { Party, Lot, PaymentMode, SystemSettings } from '../types';
 import { ArrowLeft, ArrowRight, Plus, Trash2, Calendar, Clipboard, Users, ShieldAlert, Award, Layers } from 'lucide-react';
 
 interface NewLotWizardProps {
@@ -660,7 +660,7 @@ export default function NewLotWizard({ onNavigate }: NewLotWizardProps) {
   const buyers = parties.filter(p => p.type === 'buyer');
 
   return (
-    <div className="flex-1 overflow-y-auto p-6 space-y-6 animate-fade-in">
+    <div className="flex-1 overflow-y-auto p-4 lg:p-6 space-y-4 lg:space-y-6 animate-fade-in">
       {/* Toast */}
       {toastMsg && (
         <div className={`fixed bottom-4 right-4 z-50 px-6 py-3 rounded-xl shadow-xl font-medium text-sm border ${
@@ -673,8 +673,8 @@ export default function NewLotWizard({ onNavigate }: NewLotWizardProps) {
       {/* Header */}
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-extrabold tracking-tight text-white font-display">New Seller Lot</h1>
-          <p className="text-slate-400 text-sm mt-1">Auction invoicing and crate distribution wizard.</p>
+          <h1 className="text-2xl lg:text-3xl font-extrabold tracking-tight text-white font-display">New Seller Lot</h1>
+          <p className="text-slate-400 text-xs lg:text-sm mt-1">Auction invoicing and crate distribution wizard.</p>
         </div>
         <div className="flex items-center gap-3">
           <span className="text-xs font-semibold text-slate-500 uppercase tracking-widest bg-slate-900 border border-slate-800 px-3 py-1.5 rounded-lg">
@@ -711,8 +711,8 @@ export default function NewLotWizard({ onNavigate }: NewLotWizardProps) {
 
       {/* STEP 1: Seller and Crew Selection */}
       {step === 1 && (
-        <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 max-w-xl mx-auto space-y-6 shadow-xl">
-          <div className="flex items-center gap-3 border-b border-slate-800 pb-4">
+        <div className="bg-slate-900 border border-slate-800 rounded-3xl p-4 lg:p-6 max-w-xl mx-auto space-y-5 lg:space-y-6 shadow-xl">
+          <div className="flex items-center gap-3 border-b border-slate-800 pb-3 lg:pb-4">
             <Clipboard className="w-5 h-5 text-blue-400" />
             <h3 className="text-lg font-bold text-white font-display">Seller & Details Selection</h3>
           </div>
@@ -776,10 +776,10 @@ export default function NewLotWizard({ onNavigate }: NewLotWizardProps) {
       )}
       {/* STEP 2: Crate details entry */}
       {step === 2 && (
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 lg:gap-6">
           {/* Left panel Form */}
-          <div className="glass-panel rounded-3xl p-6 h-fit space-y-5 shadow-xl">
-            <div className="flex items-center gap-3 border-b border-slate-800 pb-4">
+          <div className="glass-panel rounded-3xl p-4 lg:p-6 h-fit space-y-4 lg:space-y-5 shadow-xl">
+            <div className="flex items-center gap-3 border-b border-slate-800 pb-3 lg:pb-4">
               <Layers className="w-5 h-5 text-blue-450" />
               <h3 className="text-base font-bold text-white font-display">Add Crate Specification</h3>
             </div>
@@ -990,7 +990,7 @@ export default function NewLotWizard({ onNavigate }: NewLotWizardProps) {
       {step === 3 && (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Allocation input Form */}
-          <div className="glass-panel rounded-3xl p-6 h-fit space-y-5 shadow-xl">
+          <div className="glass-panel rounded-3xl p-4 lg:p-6 h-fit space-y-5 shadow-xl">
             <div className="flex items-center gap-3 border-b border-slate-800 pb-4">
               <Users className="w-5 h-5 text-blue-450" />
               <h3 className="text-base font-bold text-white font-display">Crates Allocations</h3>
@@ -1220,7 +1220,7 @@ export default function NewLotWizard({ onNavigate }: NewLotWizardProps) {
       {step === 4 && (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 max-w-5xl mx-auto">
           {/* Seller settlement */}
-          <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 shadow-xl space-y-4">
+          <div className="bg-slate-900 border border-slate-800 rounded-3xl p-4 lg:p-6 shadow-xl space-y-4">
             <h3 className="text-base font-bold text-white font-display border-b border-slate-800 pb-3">
               Seller Settlement Account
             </h3>
@@ -1256,7 +1256,7 @@ export default function NewLotWizard({ onNavigate }: NewLotWizardProps) {
           </div>
 
           {/* Buyer settlement */}
-          <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 shadow-xl space-y-4">
+          <div className="bg-slate-900 border border-slate-800 rounded-3xl p-4 lg:p-6 shadow-xl space-y-4">
             <h3 className="text-base font-bold text-white font-display border-b border-slate-800 pb-3">
               Buyers Surcharge Ledger
             </h3>
@@ -1286,7 +1286,7 @@ export default function NewLotWizard({ onNavigate }: NewLotWizardProps) {
           </div>
 
           {/* Finalize options */}
-          <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 shadow-xl flex flex-col justify-between h-full min-h-[280px]">
+          <div className="bg-slate-900 border border-slate-800 rounded-3xl p-4 lg:p-6 shadow-xl flex flex-col justify-between h-full min-h-[280px]">
             <div className="space-y-4">
               <div className="flex items-center gap-2 text-rose-400">
                 <ShieldAlert className="w-5 h-5 shrink-0" />

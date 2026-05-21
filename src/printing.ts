@@ -32,6 +32,9 @@ function printViaMobileDom(html: string, format: 'a4' | 'receipt'): void {
   document.body.appendChild(mount);
   document.body.classList.add('is-printing', `print-${format}`);
 
+  // Force synchronous layout reflow so mobile browser paints the mount point before print dialog
+  void mount.offsetHeight; 
+
   const cleanup = () => {
     const el = document.getElementById('print-mount-point');
     if (el) el.remove();
@@ -41,9 +44,10 @@ function printViaMobileDom(html: string, format: 'a4' | 'receipt'): void {
 
   window.addEventListener('afterprint', cleanup);
 
+  // Use a longer timeout for mobile devices to reliably generate the PDF from the updated DOM
   setTimeout(() => {
     window.print();
-  }, 150);
+  }, 500);
 }
 
 export function printViaBrowser(html: string, format: 'a4' | 'receipt'): void;

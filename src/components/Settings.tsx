@@ -3,7 +3,7 @@ import { db } from '../db';
 import { SystemSettings } from '../types';
 import { 
   Save, Download, Upload, ShieldAlert, Check, Plus, Trash2, 
-  Settings as SettingsIcon, Image, RefreshCw, AlertTriangle 
+  Settings as SettingsIcon, Image, AlertTriangle 
 } from 'lucide-react';
 
 export default function Settings() {

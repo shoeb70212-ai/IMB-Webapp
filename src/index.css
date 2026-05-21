@@ -144,10 +144,16 @@ body, main, aside, header, div, span, button, input, select, table, th, td {
   transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* Custom Scrollbars */
+/* Custom Scrollbars - hidden on mobile, visible on desktop */
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 0px;
+  height: 0px;
+}
+@media (min-width: 1024px) {
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
 }
 ::-webkit-scrollbar-track {
   background: transparent;
@@ -158,6 +164,14 @@ body, main, aside, header, div, span, button, input, select, table, th, td {
 }
 ::-webkit-scrollbar-thumb:hover {
   background: rgb(var(--c-slate-600));
+}
+
+/* Safe Area Insets for Mobile (iOS PWA) */
+.safe-pb {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+.safe-mb {
+  margin-bottom: env(safe-area-inset-bottom, 0px);
 }
 
 /* Hide content with x-cloak equivalent in React (usually handled by rendering, but kept for styling) */
@@ -393,17 +407,23 @@ body, main, aside, header, div, span, button, input, select, table, th, td {
   }
 
   /* Mobile DOM injection: hide React app, show print content */
-  body.is-printing #root {
+  body.is-printing > #root, 
+  body.is-printing > * {
     display: none !important;
   }
 
-  body.is-printing #print-mount-point {
+  body.is-printing > #print-mount-point {
     display: block !important;
   }
 
   /* Always show mount point during print */
   #print-mount-point {
     display: block;
+  }
+
+  /* Native Browser Print Fallbacks */
+  .no-print, header, aside, nav, button {
+    display: none !important;
   }
 
   /* Generic print document resets */

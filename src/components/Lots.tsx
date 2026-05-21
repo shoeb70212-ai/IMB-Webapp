@@ -1,10 +1,9 @@
 import React, { useState } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db, generateId } from '../db';
-import { Lot, PaymentMode } from '../types';
+import { Lot } from '../types';
 import { 
-  ArrowLeft, Printer, Check, Search, Calendar, 
-  Layers, Package, DollarSign, User, ShieldAlert, TrendingUp
+  ArrowLeft, Search, Package, TrendingUp
 } from 'lucide-react';
 import { printViaBrowser } from '../printing';
 
@@ -170,7 +169,6 @@ export default function Lots() {
     })();
     const subtotal = rows.reduce((s, r) => s + r.sale_amount, 0);
     const buyerCharges = activeCharges.filter(ch => ch.buyer_id && ch.buyer_name === buyerName);
-    const totalBuyerAdd = buyerCharges.reduce((s, ch) => s + ch.amount, 0);
     return buildA4Html(rows, [], buyerCharges, subtotal, 0, 0, buyerName);
   };
 
@@ -482,14 +480,14 @@ export default function Lots() {
   };
 
   return (
-    <div className="flex-1 overflow-y-auto p-4 lg:p-6 space-y-6 animate-fade-in bg-slate-950 text-slate-200">
+    <div className="flex-1 overflow-y-auto p-3 md:p-4 lg:p-6 space-y-4 lg:space-y-6 animate-fade-in bg-slate-950 text-slate-200">
       {!selectedLotId ? (
         // LIST VIEW OF LOTS
         <>
-          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
+          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 lg:gap-4">
             <div>
-              <h1 className="text-2xl lg:text-3xl font-extrabold tracking-tight text-white font-display">Arrival Lots</h1>
-              <p className="text-slate-400 text-xs lg:text-sm mt-1">Browse, view settled auction details, pay sellers, and print memos.</p>
+              <h1 className="text-xl md:text-2xl lg:text-3xl font-extrabold tracking-tight text-white font-display">Arrival Lots</h1>
+              <p className="text-slate-400 text-[11px] md:text-xs lg:text-sm mt-0.5 lg:mt-1">Browse, view settled auction details, pay sellers, and print memos.</p>
             </div>
             
             <div className="relative w-full sm:w-80">
@@ -569,7 +567,7 @@ export default function Lots() {
                 <div 
                   key={l.id} 
                   onClick={() => { setSelectedLotId(l.id); setSelectedBuyerFilter(''); }}
-                  className="glass-panel rounded-2xl p-4 flex flex-col gap-2.5 cursor-pointer hover:border-blue-500/30 transition duration-200"
+                  className="glass-panel rounded-2xl p-3 lg:p-4 flex flex-col gap-2.5 cursor-pointer hover:border-blue-500/30 transition duration-200"
                 >
                   <div className="flex justify-between items-center">
                     <span className="font-mono font-bold text-blue-450 text-sm">{l.id}</span>
