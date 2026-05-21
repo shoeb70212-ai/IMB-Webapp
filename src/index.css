@@ -174,14 +174,31 @@ body, main, aside, header, div, span, button, input, select, table, th, td {
   margin-bottom: env(safe-area-inset-bottom, 0px);
 }
 
-/* Hide content with x-cloak equivalent in React (usually handled by rendering, but kept for styling) */
-.cloak {
-  display: none !important;
+body {
+  background-color: rgb(var(--c-slate-950));
+  background-image: 
+    radial-gradient(at 0% 0%, rgba(14, 165, 233, 0.08) 0px, transparent 50%),
+    radial-gradient(at 50% 0%, rgba(99, 102, 241, 0.04) 0px, transparent 40%),
+    radial-gradient(at 100% 100%, rgba(168, 85, 247, 0.02) 0px, transparent 50%);
+  background-attachment: fixed;
+  transition: background-color 0.3s ease;
+}
+
+[data-theme="light"] body {
+  background-image: 
+    radial-gradient(at 0% 0%, rgba(45, 128, 73, 0.04) 0px, transparent 50%),
+    radial-gradient(at 100% 100%, rgba(219, 214, 206, 0.15) 0px, transparent 50%);
+}
+
+[data-theme="bazaar"] body {
+  background-image: 
+    radial-gradient(at 0% 0%, rgba(249, 115, 22, 0.06) 0px, transparent 50%),
+    radial-gradient(at 100% 100%, rgba(132, 204, 22, 0.02) 0px, transparent 50%);
 }
 
 /* Custom Animations */
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(6px); }
+  from { opacity: 0; transform: translateY(8px); }
   to { opacity: 1; transform: translateY(0); }
 }
 
@@ -190,47 +207,118 @@ body, main, aside, header, div, span, button, input, select, table, th, td {
   to { transform: translateY(0); }
 }
 
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+@keyframes pulseSlow {
+  0%, 100% { opacity: 0.6; transform: scale(1); }
+  50% { opacity: 0.9; transform: scale(1.02); }
+}
+
 .animate-fade-in {
-  animation: fadeIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation: fadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
 .animate-slide-up {
-  animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation: slideUp 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-shimmer {
+  background: linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.03) 50%, rgba(255,255,255,0) 100%);
+  background-size: 200% 100%;
+  animation: shimmer 2s infinite;
+}
+
+.animate-pulse-slow {
+  animation: pulseSlow 4s infinite ease-in-out;
 }
 
 /* Glassmorphism card utilities */
 .glass-panel {
-  background: rgba(var(--c-slate-900), 0.75) !important;
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(var(--c-slate-800), 0.5);
+  background: rgba(var(--c-slate-900), 0.5) !important;
+  backdrop-filter: blur(16px) saturate(120%);
+  -webkit-backdrop-filter: blur(16px) saturate(120%);
+  border: 1px solid rgba(var(--c-slate-800), 0.45);
+  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.2);
 }
 
 .glass-header {
   background: rgba(var(--c-slate-900), 0.6) !important;
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border-bottom: 1px solid rgba(var(--c-slate-800), 0.5);
+  backdrop-filter: blur(16px) saturate(110%);
+  -webkit-backdrop-filter: blur(16px) saturate(110%);
+  border-bottom: 1px solid rgba(var(--c-slate-800), 0.4);
 }
 
-/* Premium Card hover styles */
+/* Premium Card hover and lift styles */
+.hover-lift {
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.4s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.4s ease;
+}
+.hover-lift:hover {
+  transform: translateY(-4px) scale(1.008);
+}
+
 .interactive-card {
-  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
 .interactive-card:hover {
-  transform: translateY(-2px);
+  transform: translateY(-3px);
   border-color: rgba(var(--c-blue-500), 0.35);
-  box-shadow: 0 12px 20px -10px rgba(var(--c-blue-500), 0.12);
+  box-shadow: 0 16px 28px -12px rgba(var(--c-blue-500), 0.16);
 }
 .interactive-card-success:hover {
-  transform: translateY(-2px);
+  transform: translateY(-3px);
   border-color: rgba(var(--c-emerald-500), 0.35);
-  box-shadow: 0 12px 20px -10px rgba(var(--c-emerald-500), 0.12);
+  box-shadow: 0 16px 28px -12px rgba(var(--c-emerald-500), 0.16);
 }
 .interactive-card-error:hover {
-  transform: translateY(-2px);
+  transform: translateY(-3px);
   border-color: rgba(var(--c-rose-500), 0.35);
-  box-shadow: 0 12px 20px -10px rgba(var(--c-rose-500), 0.12);
+  box-shadow: 0 16px 28px -12px rgba(var(--c-rose-500), 0.16);
+}
+
+/* Premium Category Ambient Card Glows */
+.glow-emerald {
+  box-shadow: 0 0 20px -5px rgba(var(--c-emerald-500), 0.05);
+}
+.glow-emerald:hover {
+  border-color: rgba(var(--c-emerald-500), 0.35) !important;
+  box-shadow: 0 12px 28px -8px rgba(var(--c-emerald-500), 0.18);
+}
+
+.glow-amber {
+  box-shadow: 0 0 20px -5px rgba(245, 158, 11, 0.05);
+}
+.glow-amber:hover {
+  border-color: rgba(245, 158, 11, 0.35) !important;
+  box-shadow: 0 12px 28px -8px rgba(245, 158, 11, 0.18);
+}
+
+.glow-rose {
+  box-shadow: 0 0 20px -5px rgba(var(--c-rose-500), 0.05);
+}
+.glow-rose:hover {
+  border-color: rgba(var(--c-rose-500), 0.35) !important;
+  box-shadow: 0 12px 28px -8px rgba(var(--c-rose-500), 0.18);
+}
+
+.glow-blue {
+  box-shadow: 0 0 20px -5px rgba(var(--c-blue-500), 0.05);
+}
+.glow-blue:hover {
+  border-color: rgba(var(--c-blue-500), 0.35) !important;
+  box-shadow: 0 12px 28px -8px rgba(var(--c-blue-500), 0.18);
+}
+
+/* Premium Dynamic Inputs */
+input, select, textarea {
+  transition: border-color 0.25s ease, box-shadow 0.25s ease !important;
+}
+input:focus, select:focus, textarea:focus {
+  border-color: rgba(var(--c-blue-500), 0.5) !important;
+  box-shadow: 0 0 0 3px rgba(var(--c-blue-500), 0.12) !important;
+  outline: none !important;
 }
 
 /* Bottom sheets drawer for mobile viewports */
@@ -246,7 +334,12 @@ body, main, aside, header, div, span, button, input, select, table, th, td {
     border-bottom-left-radius: 0;
     border-bottom-right-radius: 0;
     max-height: 85vh;
-    animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    background: rgba(var(--c-slate-900), 0.9) !important;
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-top: 1px solid rgba(var(--c-slate-800), 0.6);
+    box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.3);
+    animation: slideUp 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
   }
 }
 
@@ -268,8 +361,6 @@ body, main, aside, header, div, span, button, input, select, table, th, td {
   .print-container {
     width: 100% !important;
     max-width: 100% !important;
-    box-shadow: none !important;
-    border: none !important;
     background: white !important;
     color: black !important;
     -webkit-print-color-adjust: exact !important;
@@ -299,6 +390,11 @@ body, main, aside, header, div, span, button, input, select, table, th, td {
     color: black !important;
     border-color: #555 !important;
   }
+  /* Protect the document border frame from the wildcard override above */
+  body.print-receipt .print-border-frame,
+  body.print-receipt .print-container.print-border-frame {
+    border-color: #333 !important;
+  }
   body.print-receipt .print-container img {
     max-width: 40mm !important;
     display: block !important;
@@ -316,6 +412,10 @@ body, main, aside, header, div, span, button, input, select, table, th, td {
   body.print-a4 .print-container * {
     color: black !important;
     border-color: #ccc !important;
+  }
+  /* Protect the document border frame from the wildcard override above */
+  body.print-a4 .print-border-frame {
+    border-color: #1e293b !important;
   }
 
   /* Shared printing utility classes */
@@ -438,6 +538,26 @@ body, main, aside, header, div, span, button, input, select, table, th, td {
     margin: 0;
   }
 
+  /* ─── Document border frame ─────────────────────────────────────────
+     A dedicated wrapper that is NEVER stripped of its border in print.
+     Use this around the entire print document for the letterhead frame.
+  ─────────────────────────────────────────────────────────────────── */
+  .print-border-frame {
+    border: 2px solid #1e293b !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    box-sizing: border-box;
+  }
+  .print-border-frame::before {
+    content: '';
+    position: absolute;
+    inset: 4px;
+    border: 1px solid #94a3b8;
+    pointer-events: none;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
   .print-table {
     width: 100%;
     border-collapse: collapse;
@@ -494,10 +614,12 @@ body, main, aside, header, div, span, button, input, select, table, th, td {
     max-width: 80mm !important;
     margin: 0 auto !important;
     padding: 3mm 2mm !important;
-    border: none !important;
     box-shadow: none !important;
     box-sizing: border-box !important;
     background: white !important;
+    border: 1.5px solid #333 !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
   }
 
   body.print-receipt .print-container * {

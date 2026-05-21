@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { db } from '../db';
+import { db, DEFAULT_BUSINESS_SETTINGS } from '../db';
 import { SystemSettings } from '../types';
 import { 
   Save, Download, Upload, ShieldAlert, Check, Plus, Trash2, 
@@ -206,7 +206,7 @@ export default function Settings() {
       
       const link = document.createElement('a');
       link.href = url;
-      link.download = `kisan_mitra_backup_${new Date().toISOString().split('T')[0]}.json`;
+      link.download = `imb_backup_${new Date().toISOString().split('T')[0]}.json`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
@@ -315,7 +315,7 @@ export default function Settings() {
                     value={settings.business_name}
                     onChange={(e) => setSettings(prev => ({ ...prev, business_name: e.target.value }))}
                     className="w-full px-4 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-sm text-slate-200 focus:outline-none focus:border-blue-600 font-medium"
-                    placeholder="e.g. Kisan Trading Co."
+                    placeholder={`e.g. ${DEFAULT_BUSINESS_SETTINGS.business_name}`}
                   />
                 </div>
                 <div>

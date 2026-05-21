@@ -1,5 +1,20 @@
 import Dexie, { type Table } from 'dexie';
-import { Party, Lot, CrateAllocation, LotCharge, KhataEntry, CashbookEntry, LabourWorker, LabourTx } from './types';
+import { Party, Lot, CrateAllocation, LotCharge, KhataEntry, CashbookEntry, LabourWorker, LabourTx, SystemSettings } from './types';
+
+export const DEFAULT_BUSINESS_SETTINGS: SystemSettings = {
+  business_name: "IMB Fruit Agency",
+  owner_name: "Syed. Najeeb",
+  phone: "94221 83481",
+  address: "Shop No. 39, Market Yard, Camp Road, Malegaon, District Nashik, Maharashtra, India",
+  business_logo: "/logo.png",
+  default_commission_percent: 6,
+  default_labour_per_crate: 15,
+  default_weighing_per_crate: 5,
+  fruit_types: ["Mango", "Banana", "Apple", "Grapes", "Pomegranate", "Orange", "Guava", "Other"],
+  quality_grades: ["A1", "A2", "B", "C"],
+  grade_prices: {"A1": 800, "A2": 600, "B": 400, "C": 200}
+};
+
 
 export class KisanMitraDB extends Dexie {
   parties!: Table<Party>;
@@ -43,13 +58,19 @@ export function generateId(): string {
   return Math.random().toString(36).substring(2, 9);
 }
 
+// Module-level promise cache to prevent duplicate seeding on React StrictMode double-mount
+let initPromise: Promise<void> | null = null;
+
 // Function to migrate from localStorage and seed default demo data if empty
-export async function initializeDatabase() {
-  const partiesCount = await db.parties.count();
-  if (partiesCount > 0) {
-    // Database already initialized
-    return;
-  }
+export function initializeDatabase(): Promise<void> {
+  if (initPromise) return initPromise;
+
+  initPromise = (async () => {
+    const partiesCount = await db.parties.count();
+    if (partiesCount > 0) {
+      // Database already initialized
+      return;
+    }
 
   // Check if we have legacy localStorage data
   const hasLegacyData = localStorage.getItem('ca_parties') !== null;
@@ -92,21 +113,8 @@ export async function initializeDatabase() {
   // If no legacy data and DB is empty, seed demo data
   console.log('No data found in database or localStorage. Seeding default demo data...');
   
-  const defaultSettings = {
-    business_name: "Kisan Trading Co.",
-    owner_name: "Ramesh Aggarwal",
-    phone: "9876543210",
-    address: "Mandi Market",
-    default_commission_percent: 6,
-    default_labour_per_crate: 15,
-    default_weighing_per_crate: 5,
-    fruit_types: ["Mango", "Banana", "Apple", "Grapes", "Pomegranate", "Orange", "Guava", "Other"],
-    quality_grades: ["A1", "A2", "B", "C"],
-    grade_prices: {"A1": 800, "A2": 600, "B": 400, "C": 200}
-  };
-  
   if (!localStorage.getItem('ca_settings')) {
-    localStorage.setItem('ca_settings', JSON.stringify(defaultSettings));
+    localStorage.setItem('ca_settings', JSON.stringify(DEFAULT_BUSINESS_SETTINGS));
   }
 
   const s = [
@@ -320,5 +328,8 @@ export async function initializeDatabase() {
     await db.labourTransactions.bulkAdd(labourTxList);
   });
 
-  console.log('Demo data seeded successfully!');
+    console.log('Demo data seeded successfully!');
+  })();
+
+  return initPromise;
 }

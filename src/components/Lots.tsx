@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
-import { db, generateId } from '../db';
+import { db, generateId, DEFAULT_BUSINESS_SETTINGS } from '../db';
 import { Lot } from '../types';
 import { 
   ArrowLeft, Search, Package, TrendingUp
 } from 'lucide-react';
-import { printViaBrowser } from '../printing';
+import { printViaBrowser, PrintPageSize } from '../printing';
 
 const ALL_COPIES_KEY = '__ALL_COPIES__';
 
@@ -23,6 +23,7 @@ export default function Lots() {
   // Detail Views Configuration
   const [selectedBuyerFilter, setSelectedBuyerFilter] = useState('');
   const [groupSimilar, setGroupSimilar] = useState(true);
+  const [printPageSize, setPrintPageSize] = useState<PrintPageSize>('a4');
 
   // Selected Lot Details
   const selectedLot = lots.find(l => l.id === selectedLotId) || null;
@@ -175,16 +176,17 @@ export default function Lots() {
   // Core A4 HTML builder (shared by seller/buyer/combined)
   const buildA4Html = (rows: any[], deductions: any[], buyerCharges: any[], subtotal: number, totalDed: number, netSeller: number, buyerFilter: string | null) => {
     const totalBuyerAdd = buyerCharges.reduce((s: number, ch: any) => s + ch.amount, 0);
+    // Border style: professional double-line letterhead border
     return `
-      <div class="print-container">
+      <div class="print-container print-border-frame" style="padding: 20px 24px; position: relative;">
         <div style="display:flex;justify-content:space-between;align-items:flex-start;border-bottom:2px solid #1e293b;padding-bottom:15px;margin-bottom:20px;">
           <div style="display:flex;align-items:center;gap:15px;">
             ${settings.business_logo ? `<img src="${settings.business_logo}" style="max-height:70px;max-width:120px;object-fit:contain;" />` : ''}
             <div>
-              <h1 style="margin:0;font-family:'Outfit',sans-serif;font-size:22px;font-weight:800;color:#0f172a;text-transform:uppercase;letter-spacing:-0.5px;">${settings.business_name || 'Kisan Trading Co.'}</h1>
-              <p style="margin:4px 0 2px 0;font-size:13px;color:#475569;font-weight:500;">Prop: ${settings.owner_name || 'Mandi Agent'}</p>
-              <p style="margin:2px 0;font-size:12px;color:#64748b;">${settings.address || 'Mandi Yard'}</p>
-              <p style="margin:2px 0;font-size:12px;color:#64748b;"><strong>Phone:</strong> ${settings.phone || ''}</p>
+              <h1 style="margin:0;font-family:'Outfit',sans-serif;font-size:22px;font-weight:800;color:#0f172a;text-transform:uppercase;letter-spacing:-0.5px;">${settings.business_name || DEFAULT_BUSINESS_SETTINGS.business_name}</h1>
+              <p style="margin:4px 0 2px 0;font-size:13px;color:#475569;font-weight:500;">Prop: ${settings.owner_name || DEFAULT_BUSINESS_SETTINGS.owner_name}</p>
+              <p style="margin:2px 0;font-size:12px;color:#64748b;">${settings.address || DEFAULT_BUSINESS_SETTINGS.address}</p>
+              <p style="margin:2px 0;font-size:12px;color:#64748b;"><strong>Phone:</strong> ${settings.phone || DEFAULT_BUSINESS_SETTINGS.phone}</p>
             </div>
           </div>
           <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:12px 18px;min-width:250px;text-align:right;">
@@ -266,12 +268,15 @@ export default function Lots() {
     const buyerAdditions = activeCharges.filter(ch => ch.buyer_id && (!selectedBuyerFilter || ch.buyer_name === selectedBuyerFilter));
     const totalBuyerAdditions = buyerAdditions.reduce((sum, ch) => sum + ch.amount, 0);
 
+    // Determine the actual page size to use
+    const effectiveSize: PrintPageSize = type === 'receipt' ? 'receipt' : printPageSize;
+
     // Combined view: print seller + all buyer copies with page breaks
     if (selectedBuyerFilter === ALL_COPIES_KEY && type === 'a4') {
       const sellerHtml = buildSellerPrintHtml();
       const buyerHtmls = uniqueBuyers.map(b => `<div class="print-page-break">${buildBuyerPrintHtml(b)}</div>`);
       const combined = [sellerHtml, ...buyerHtmls].join('\n');
-      printViaBrowser(combined, 'a4');
+      printViaBrowser(combined, effectiveSize);
       return;
     }
 
@@ -279,17 +284,17 @@ export default function Lots() {
 
     if (type === 'a4') {
       printHtml = `
-        <div class="print-container">
+        <div class="print-container print-border-frame" style="padding: 20px 24px; position: relative;">
           <!-- Top section: Two-column layout -->
           <div style="display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 2px solid #1e293b; padding-bottom: 15px; margin-bottom: 20px;">
             <!-- Left column: Company info -->
             <div style="display: flex; align-items: center; gap: 15px;">
               ${settings.business_logo ? `<img src="${settings.business_logo}" style="max-height: 70px; max-width: 120px; object-fit: contain;" />` : ''}
               <div>
-                <h1 style="margin: 0; font-family: 'Outfit', sans-serif; font-size: 22px; font-weight: 800; color: #0f172a; text-transform: uppercase; letter-spacing: -0.5px;">${settings.business_name || 'Kisan Trading Co.'}</h1>
-                <p style="margin: 4px 0 2px 0; font-size: 13px; color: #475569; font-weight: 500;">Prop: ${settings.owner_name || 'Mandi Agent'}</p>
-                <p style="margin: 2px 0; font-size: 12px; color: #64748b;">${settings.address || 'Mandi Yard'}</p>
-                <p style="margin: 2px 0; font-size: 12px; color: #64748b;"><strong>Phone:</strong> ${settings.phone || ''}</p>
+                <h1 style="margin: 0; font-family: 'Outfit', sans-serif; font-size: 22px; font-weight: 800; color: #0f172a; text-transform: uppercase; letter-spacing: -0.5px;">${settings.business_name || DEFAULT_BUSINESS_SETTINGS.business_name}</h1>
+                <p style="margin: 4px 0 2px 0; font-size: 13px; color: #475569; font-weight: 500;">Prop: ${settings.owner_name || DEFAULT_BUSINESS_SETTINGS.owner_name}</p>
+                <p style="margin: 2px 0; font-size: 12px; color: #64748b;">${settings.address || DEFAULT_BUSINESS_SETTINGS.address}</p>
+                <p style="margin: 2px 0; font-size: 12px; color: #64748b;"><strong>Phone:</strong> ${settings.phone || DEFAULT_BUSINESS_SETTINGS.phone}</p>
               </div>
             </div>
             <!-- Right column: Document details card -->
@@ -387,12 +392,12 @@ export default function Lots() {
     } else {
       // 80mm receipt
       printHtml = `
-        <div class="print-container">
+        <div class="print-container print-border-frame">
           <div style="text-align: center; border-bottom: 1px dashed #333; padding-bottom: 6px; margin-bottom: 10px;">
             ${settings.business_logo ? `<img src="${settings.business_logo}" style="display: block; margin: 0 auto 4px auto; max-height: 45px; object-fit: contain;" />` : ''}
-            <h3 style="margin: 0; font-family: 'Outfit', sans-serif; font-size: 14px; font-weight: 800; text-transform: uppercase;">${settings.business_name || 'Kisan Trading Co.'}</h3>
-            <p style="margin: 2px 0; font-size: 9px; color: #555;">${settings.address || 'Mandi Yard'}</p>
-            <p style="margin: 2px 0; font-size: 9px; color: #555;">Phone: ${settings.phone || ''}</p>
+            <h3 style="margin: 0; font-family: 'Outfit', sans-serif; font-size: 14px; font-weight: 800; text-transform: uppercase;">${settings.business_name || DEFAULT_BUSINESS_SETTINGS.business_name}</h3>
+            <p style="margin: 2px 0; font-size: 9px; color: #555;">${settings.address || DEFAULT_BUSINESS_SETTINGS.address}</p>
+            <p style="margin: 2px 0; font-size: 9px; color: #555;">Phone: ${settings.phone || DEFAULT_BUSINESS_SETTINGS.phone}</p>
             <h4 style="margin: 6px 0 0 0; text-transform: uppercase; font-size: 10px; background: #eee; padding: 3px; font-weight: 700;">
               ${selectedBuyerFilter ? `BUYER INVOICE: ${selectedBuyerFilter}` : 'SELLER SETTLEMENT'}
             </h4>
@@ -470,17 +475,17 @@ export default function Lots() {
           
           <div style="text-align: center; margin-top: 15px; font-size: 7px; color: #777;">
             Thank you for your business!
-            <br/>Powered by Kisan Mitra
+            <br/>Powered by ${DEFAULT_BUSINESS_SETTINGS.business_name}
           </div>
         </div>
       `;
     }
 
-    printViaBrowser(printHtml, type);
+    printViaBrowser(printHtml, effectiveSize);
   };
 
   return (
-    <div className="flex-grow overflow-y-auto px-3.5 py-4 lg:p-6 pb-28 lg:pb-6 space-y-4 lg:space-y-6 animate-fade-in bg-slate-950 text-slate-200">
+    <div className="flex-grow overflow-y-auto px-3.5 py-4 lg:p-6 pb-28 lg:pb-6 space-y-4 lg:space-y-6 animate-fade-in bg-slate-950/20 text-slate-200">
       {!selectedLotId ? (
         // LIST VIEW OF LOTS
         <>
@@ -491,58 +496,58 @@ export default function Lots() {
             </div>
             
             <div className="relative w-full sm:w-80">
-              <Search className="absolute left-3 top-2.5 w-4 h-4 text-slate-500" />
+              <Search className="absolute left-3.5 top-3 w-4 h-4 text-slate-500" />
               <input
                 type="text"
                 placeholder="Search lot, seller name or status..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-9 pr-3 py-1.5 bg-slate-900 border border-slate-800/80 rounded-xl text-xs text-white focus:outline-none focus:border-blue-600 placeholder-slate-600"
+                className="w-full pl-10 pr-4 py-2.5 bg-slate-900/60 border border-slate-800/80 rounded-2xl text-xs text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500/50 transition-all font-medium"
               />
             </div>
           </div>
 
           {/* Desktop Table View */}
-          <div className="hidden md:block bg-slate-900 border border-slate-800 rounded-3xl overflow-hidden shadow-xl">
+          <div className="hidden md:block glass-panel rounded-3xl overflow-hidden shadow-2xl relative border border-slate-800/60">
             {filteredLots.length === 0 ? (
               <div className="py-20 text-center text-slate-500 flex flex-col items-center justify-center">
-                <Package className="w-16 h-16 opacity-25 mb-4 text-blue-500" />
-                <span className="font-bold text-slate-400">No arrival lots recorded</span>
+                <Package className="w-16 h-16 opacity-25 mb-4 text-blue-500 animate-pulse-slow" />
+                <span className="font-bold text-slate-400 text-base">No arrival lots recorded</span>
                 <p className="text-slate-500 text-xs mt-1">Add details inside the "New Lot" wizard tab.</p>
               </div>
             ) : (
               <table className="w-full text-left text-xs border-collapse">
                 <thead>
-                  <tr className="border-b border-slate-800 text-slate-400 font-bold uppercase text-[10px]">
-                    <th className="py-3.5 px-4">Lot ID</th>
-                    <th className="py-3.5 px-4">Arrival Date</th>
-                    <th className="py-3.5 px-4">Seller Name</th>
-                    <th className="py-3.5 px-4 text-center">Crates</th>
-                    <th className="py-3.5 px-4 text-right">Net Payable</th>
-                    <th className="py-3.5 px-4 text-center">Status</th>
+                  <tr className="border-b border-slate-850 bg-slate-950/40 text-slate-400 font-bold uppercase text-[10px] tracking-wider">
+                    <th className="py-4 px-5">Lot ID</th>
+                    <th className="py-4 px-5">Arrival Date</th>
+                    <th className="py-4 px-5">Seller Name</th>
+                    <th className="py-4 px-5 text-center">Crates</th>
+                    <th className="py-4 px-5 text-right">Net Payable</th>
+                    <th className="py-4 px-5 text-center">Status</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-850/50">
+                <tbody className="divide-y divide-slate-850/40">
                   {filteredLots.map(l => (
                     <tr 
                       key={l.id} 
                       onClick={() => { setSelectedLotId(l.id); setSelectedBuyerFilter(''); }}
-                      className="hover:bg-slate-800/15 transition duration-150 cursor-pointer"
+                      className="hover:bg-slate-800/25 transition duration-200 cursor-pointer border-b border-slate-850/20 last:border-0"
                     >
-                      <td className="py-4 px-4 font-mono font-bold text-blue-400 text-sm">{l.id}</td>
-                      <td className="py-4 px-4 text-slate-350">
+                      <td className="py-4 px-5 font-mono font-bold text-blue-400 text-sm">{l.id}</td>
+                      <td className="py-4 px-5 text-slate-350">
                         {new Date(l.arrival_date).toLocaleDateString(undefined, { dateStyle: 'medium' })}
                       </td>
-                      <td className="py-4 px-4 font-bold text-white text-sm">{l.seller_name}</td>
-                      <td className="py-4 px-4 text-center font-bold font-mono text-emerald-400">{l.total_crates}</td>
-                      <td className="py-4 px-4 text-right font-black font-mono text-sm text-white">
+                      <td className="py-4 px-5 font-bold text-white text-sm">{l.seller_name}</td>
+                      <td className="py-4 px-5 text-center font-bold font-mono text-emerald-400">{l.total_crates}</td>
+                      <td className="py-4 px-5 text-right font-black font-mono text-sm text-white">
                         ₹{l.net_payable_to_seller.toLocaleString('en-IN')}
                       </td>
-                      <td className="py-4 px-4 text-center">
-                        <span className={`px-2.5 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider ${
+                      <td className="py-4 px-5 text-center">
+                        <span className={`px-2.5 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider border ${
                           l.status === 'paid' 
-                            ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/10' 
-                            : 'bg-blue-500/10 text-blue-400 border border-blue-500/10'
+                            ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' 
+                            : 'bg-blue-500/10 text-blue-400 border-blue-500/20'
                         }`}>
                           {l.status}
                         </span>
@@ -557,7 +562,7 @@ export default function Lots() {
           {/* Mobile Card Listing View */}
           <div className="md:hidden space-y-3">
             {filteredLots.length === 0 ? (
-              <div className="py-12 glass-panel rounded-3xl text-center text-slate-500 flex flex-col items-center justify-center p-6">
+              <div className="py-12 glass-panel rounded-3xl text-center text-slate-500 flex flex-col items-center justify-center p-6 border border-slate-800/60">
                 <Package className="w-12 h-12 opacity-25 mb-3 text-blue-500" />
                 <span className="font-bold text-slate-400 text-sm">No arrival lots recorded</span>
                 <p className="text-slate-500 text-xs mt-1">Add details inside the "New Lot" wizard tab.</p>
@@ -567,14 +572,14 @@ export default function Lots() {
                 <div 
                   key={l.id} 
                   onClick={() => { setSelectedLotId(l.id); setSelectedBuyerFilter(''); }}
-                  className="glass-panel rounded-2xl p-3 lg:p-4 flex flex-col gap-2.5 cursor-pointer hover:border-blue-500/30 transition duration-200"
+                  className="glass-panel rounded-2xl p-4 flex flex-col gap-2.5 cursor-pointer hover-lift border border-slate-850/60 hover:border-blue-500/30 transition duration-300"
                 >
                   <div className="flex justify-between items-center">
-                    <span className="font-mono font-bold text-blue-450 text-sm">{l.id}</span>
-                    <span className={`px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider ${
+                    <span className="font-mono font-bold text-blue-405 text-sm">{l.id}</span>
+                    <span className={`px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider border ${
                       l.status === 'paid' 
-                        ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' 
-                        : 'bg-blue-500/10 text-blue-400 border border-blue-500/20'
+                        ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' 
+                        : 'bg-blue-500/10 text-blue-400 border-blue-500/20'
                     }`}>
                       {l.status}
                     </span>
@@ -599,12 +604,12 @@ export default function Lots() {
         </>
       ) : (
         // DETAILS VIEW
-        <div className="max-w-5xl mx-auto glass-panel rounded-3xl p-4 sm:p-6 lg:p-8 shadow-2xl relative">
+        <div className="max-w-5xl mx-auto glass-panel rounded-3xl p-4 sm:p-6 lg:p-8 shadow-2xl relative border border-slate-800/60">
           {/* Back & Actions */}
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-slate-800/80 pb-5 mb-6 gap-4">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-slate-850/60 pb-5 mb-6 gap-4">
             <button
               onClick={() => setSelectedLotId(null)}
-              className="w-full sm:w-auto px-4 py-2 bg-slate-950 border border-slate-800 hover:bg-slate-900 hover:border-slate-700 text-slate-300 text-xs font-bold rounded-xl flex items-center justify-center gap-1.5 cursor-pointer transition"
+              className="w-full sm:w-auto px-4 py-2.5 bg-slate-900/60 border border-slate-800/80 hover:bg-slate-800/80 hover:border-slate-700 text-slate-350 text-xs font-bold rounded-xl flex items-center justify-center gap-1.5 cursor-pointer hover-lift transition-all"
             >
               <ArrowLeft className="w-4 h-4" />
               <span>Back to list</span>
@@ -614,23 +619,34 @@ export default function Lots() {
               {selectedLot && selectedLot.status === 'auctioned' && (
                 <button
                   onClick={handleMarkPaid}
-                  className="w-full sm:w-auto px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold rounded-xl cursor-pointer shadow-lg transition"
+                  className="w-full sm:w-auto px-5 py-2.5 bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-500 hover:to-emerald-450 text-white text-xs font-extrabold rounded-xl cursor-pointer shadow-lg shadow-emerald-950/20 hover-lift transition-all border border-emerald-500/25"
                 >
                   Mark Seller Paid
                 </button>
               )}
               <div className="grid grid-cols-2 gap-2 w-full sm:w-auto">
+                {/* Page size selector */}
+                <select
+                  id="print-page-size-select"
+                  value={printPageSize}
+                  onChange={(e) => setPrintPageSize(e.target.value as PrintPageSize)}
+                  className="col-span-2 bg-slate-900/60 hover:bg-slate-800/50 border border-slate-800/80 rounded-xl px-3 py-2 text-xs text-slate-200 outline-none font-bold transition-all cursor-pointer"
+                >
+                  <option value="a4">📄 A4 (210 × 297 mm)</option>
+                  <option value="a5">📄 A5 (148 × 210 mm)</option>
+                  <option value="letter">📄 Letter (8.5 × 11 in)</option>
+                </select>
                 <button
                   onClick={() => handlePrint('a4')}
-                  className="px-4 py-2.5 bg-slate-950 border border-slate-800 hover:bg-slate-900 text-slate-300 text-xs font-bold rounded-xl cursor-pointer transition text-center"
+                  className="px-4 py-2.5 bg-slate-900/60 border border-slate-800/80 hover:bg-slate-800/80 text-slate-300 text-xs font-bold rounded-xl cursor-pointer hover-lift transition-all text-center flex items-center justify-center gap-1.5"
                 >
-                  🖨️ A4 Statement
+                  <span>🖨️</span> <span>Print Memo</span>
                 </button>
                 <button
                   onClick={() => handlePrint('receipt')}
-                  className="px-4 py-2.5 bg-slate-950 border border-slate-800 hover:bg-slate-900 text-slate-300 text-xs font-bold rounded-xl cursor-pointer transition text-center"
+                  className="px-4 py-2.5 bg-slate-900/60 border border-slate-800/80 hover:bg-slate-800/80 text-slate-300 text-xs font-bold rounded-xl cursor-pointer hover-lift transition-all text-center flex items-center justify-center gap-1.5"
                 >
-                  🖨️ Thermal Slip
+                  <span>🖨️</span> <span>Thermal 80mm</span>
                 </button>
               </div>
             </div>
@@ -639,7 +655,7 @@ export default function Lots() {
           {selectedLot && (
             <div className="space-y-6">
               {/* Header profile (2x2 grid on mobile, 5 columns on desktop including commission) */}
-              <div className="grid grid-cols-2 md:grid-cols-5 gap-4 bg-slate-950/40 p-4 border border-slate-800/80 rounded-2xl">
+              <div className="grid grid-cols-2 md:grid-cols-5 gap-4 bg-slate-950/50 p-5 border border-slate-850 rounded-2xl shadow-inner backdrop-blur-md">
                 <div>
                   <span className="text-[9px] lg:text-[10px] text-slate-500 font-extrabold uppercase tracking-widest block">Seller Name</span>
                   <span className="text-sm lg:text-base font-bold text-white mt-0.5 block truncate">{selectedLot.seller_name}</span>
@@ -656,14 +672,15 @@ export default function Lots() {
                 </div>
                 <div>
                   <span className="text-[9px] lg:text-[10px] text-slate-500 font-extrabold uppercase tracking-widest block">Payment Status</span>
-                  <span className={`px-2 py-0.5 mt-1 inline-block rounded text-[9px] font-bold uppercase tracking-wider ${
-                    selectedLot.status === 'paid' ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-blue-500/10 text-blue-400 border border-blue-500/20'
+                  <span className={`px-2 py-0.5 mt-1 inline-block rounded text-[9px] font-bold uppercase tracking-wider border ${
+                    selectedLot.status === 'paid' ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' : 'bg-blue-500/10 text-blue-400 border-blue-500/20'
                   }`}>
                     {selectedLot.status}
                   </span>
                 </div>
                 {/* Commission earned on this lot */}
-                <div className="bg-amber-500/8 border border-amber-500/20 rounded-xl p-2.5">
+                <div className="bg-amber-500/5 border border-amber-500/20 rounded-xl p-2.5 relative overflow-hidden">
+                  <div className="absolute top-0 right-0 w-8 h-8 bg-amber-500/5 blur-lg rounded-full"></div>
                   <span className="text-[9px] lg:text-[10px] text-amber-400/80 font-extrabold uppercase tracking-widest block">Commission Made</span>
                   <span className="text-sm lg:text-base font-black font-mono text-amber-400 mt-0.5 block">
                     {totalCommission > 0 ? `₹${totalCommission.toLocaleString('en-IN')}` : '—'}
@@ -672,24 +689,24 @@ export default function Lots() {
               </div>
 
               {/* Sub-Filters and Crate Summary Header */}
-              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 border-b border-slate-800/80 pb-3">
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 border-b border-slate-850/60 pb-4">
                 <div className="flex items-center gap-3 w-full sm:w-auto">
                   <h3 className="font-bold text-white font-display text-sm">Crate Allocations</h3>
-                  <label className="flex items-center gap-1.5 text-xs text-slate-400 cursor-pointer select-none bg-slate-950 border border-slate-800 px-2 py-1 rounded-lg">
+                  <label className="flex items-center gap-1.5 text-xs text-slate-400 cursor-pointer select-none bg-slate-900/60 hover:bg-slate-800/50 border border-slate-800/80 px-2.5 py-1.5 rounded-xl transition-all">
                     <input 
                       type="checkbox" 
                       checked={groupSimilar} 
                       onChange={(e) => setGroupSimilar(e.target.checked)}
-                      className="rounded bg-slate-950 border-slate-850 text-blue-600 focus:ring-0 w-3 h-3" 
+                      className="rounded bg-slate-950 border-slate-800/80 text-blue-500 focus:ring-0 w-3.5 h-3.5 cursor-pointer" 
                     />
-                    <span>Group Grades</span>
+                    <span className="font-semibold">Group Grades</span>
                   </label>
                 </div>
 
                 <select
                   value={selectedBuyerFilter}
                   onChange={(e) => setSelectedBuyerFilter(e.target.value)}
-                  className="bg-slate-950 border border-slate-800 rounded-lg px-2.5 py-1.5 text-xs text-slate-350 outline-none w-full sm:w-auto"
+                  className="bg-slate-900/60 hover:bg-slate-800/50 border border-slate-800/80 rounded-xl px-3 py-1.5 text-xs text-slate-200 outline-none w-full sm:w-auto font-bold transition-all cursor-pointer"
                 >
                   <option value="">All Buyers (Seller copy)</option>
                   <option value={ALL_COPIES_KEY}>✦ All Copies (Combined View)</option>
@@ -701,81 +718,81 @@ export default function Lots() {
 
               {/* Desktop Crates Allocation Table — hidden in combined view */}
               {selectedBuyerFilter !== ALL_COPIES_KEY && (
-              <>
-              <div className="hidden md:block bg-slate-900 border border-slate-850 rounded-2xl overflow-hidden">
-                <table className="w-full text-left text-xs border-collapse">
-                  <thead>
-                    <tr className="bg-slate-950 text-slate-450 border-b border-slate-850/60 font-bold uppercase text-[9px]">
-                      <th className="py-2.5 px-4">Item Details</th>
-                      <th className="py-2.5 px-4 text-center">Crates</th>
-                      <th className="py-2.5 px-4 text-center">Weights (Net/Gross)</th>
-                      <th className="py-2.5 px-4 text-center">Price Rate</th>
-                      <th className="py-2.5 px-4" style={{ display: selectedBuyerFilter ? 'none' : 'table-cell' }}>Allocated Buyer</th>
-                      <th className="py-2.5 px-4 text-right">Gross Sale</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {getDisplayRows().map((row) => (
-                      <tr key={row.id} className="border-b border-slate-850/60 hover:bg-slate-850/15">
-                        <td className="py-3 px-4 font-bold text-white flex items-center gap-1.5">
-                          <span>{row.fruit_type}</span>
-                          <span className="px-1.5 py-0.5 bg-blue-500/10 text-blue-400 rounded text-[9px] uppercase tracking-wide font-sans">{row.quality_grade}</span>
-                        </td>
-                        <td className="py-3 px-4 text-center font-bold text-slate-300">{row.qty}</td>
-                        <td className="py-3 px-4 text-center text-slate-400 font-mono">
-                          {row.net_weight_kg.toFixed(1)}kg <span className="text-slate-600">/</span> {row.gross_weight_kg.toFixed(1)}kg
-                        </td>
-                        <td className="py-3 px-4 text-center font-mono text-slate-300">₹{row.rate_per_kg}/kg</td>
-                        <td className="py-3 px-4 font-semibold text-slate-200" style={{ display: selectedBuyerFilter ? 'none' : 'table-cell' }}>
-                          {row.buyer_name}
-                        </td>
-                        <td className="py-3 px-4 text-right font-black font-mono text-white text-sm">
-                          ₹{row.sale_amount.toLocaleString('en-IN')}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-
-              {/* Mobile Crates Allocation Cards */}
-              <div className="md:hidden space-y-3">
-                {getDisplayRows().map((row) => (
-                  <div key={row.id} className="p-4 bg-slate-950/40 border border-slate-800/80 rounded-2xl flex flex-col gap-2">
-                    <div className="flex justify-between items-center">
-                      <div className="flex items-center gap-1.5">
-                        <span className="font-bold text-white text-sm">{row.fruit_type}</span>
-                        <span className="px-1.5 py-0.5 bg-blue-500/10 text-blue-400 rounded text-[9px] uppercase tracking-wide font-sans">{row.quality_grade}</span>
-                      </div>
-                      <span className="text-xs font-bold text-slate-350">{row.qty} Crates</span>
-                    </div>
-                    
-                    <div className="flex justify-between items-end mt-1 text-xs">
-                      <div>
-                        {selectedBuyerFilter ? null : (
-                          <div className="text-slate-400">
-                            Buyer: <span className="font-semibold text-slate-200">{row.buyer_name}</span>
-                          </div>
-                        )}
-                        <p className="text-[10px] text-slate-500 font-mono mt-0.5">
-                          Rate: ₹{row.rate_per_kg}/kg ({row.net_weight_kg.toFixed(1)}kg Net)
-                        </p>
-                      </div>
-                      <div className="text-right">
-                        <span className="font-black font-mono text-white">₹{row.sale_amount.toLocaleString('en-IN')}</span>
-                      </div>
-                    </div>
+                <>
+                  <div className="hidden md:block bg-slate-950/20 border border-slate-850 rounded-2xl overflow-hidden shadow-md">
+                    <table className="w-full text-left text-xs border-collapse">
+                      <thead>
+                        <tr className="bg-slate-950/80 text-slate-400 border-b border-slate-850 font-bold uppercase text-[9px] tracking-wider">
+                          <th className="py-3 px-4">Item Details</th>
+                          <th className="py-3 px-4 text-center">Crates</th>
+                          <th className="py-3 px-4 text-center">Weights (Net/Gross)</th>
+                          <th className="py-3 px-4 text-center">Price Rate</th>
+                          <th className="py-3 px-4" style={{ display: selectedBuyerFilter ? 'none' : 'table-cell' }}>Allocated Buyer</th>
+                          <th className="py-3 px-4 text-right">Gross Sale</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {getDisplayRows().map((row) => (
+                          <tr key={row.id} className="border-b border-slate-850/45 hover:bg-slate-800/25 transition-all duration-150">
+                            <td className="py-3.5 px-4 font-bold text-white flex items-center gap-1.5">
+                              <span>{row.fruit_type}</span>
+                              <span className="px-1.5 py-0.5 bg-blue-500/10 text-blue-400 rounded text-[9px] uppercase tracking-wide font-sans">{row.quality_grade}</span>
+                            </td>
+                            <td className="py-3.5 px-4 text-center font-bold text-slate-350">{row.qty}</td>
+                            <td className="py-3.5 px-4 text-center text-slate-400 font-mono">
+                              {row.net_weight_kg.toFixed(1)}kg <span className="text-slate-650">/</span> {row.gross_weight_kg.toFixed(1)}kg
+                            </td>
+                            <td className="py-3.5 px-4 text-center font-mono text-slate-350">₹{row.rate_per_kg}/kg</td>
+                            <td className="py-3.5 px-4 font-semibold text-slate-300" style={{ display: selectedBuyerFilter ? 'none' : 'table-cell' }}>
+                              {row.buyer_name}
+                            </td>
+                            <td className="py-3.5 px-4 text-right font-black font-mono text-white text-sm">
+                              ₹{row.sale_amount.toLocaleString('en-IN')}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
                   </div>
-                ))}
-              </div>
-              </>
+
+                  {/* Mobile Crates Allocation Cards */}
+                  <div className="md:hidden space-y-3">
+                    {getDisplayRows().map((row) => (
+                      <div key={row.id} className="p-4 bg-slate-950/50 border border-slate-850/60 rounded-2xl flex flex-col gap-2 shadow-sm">
+                        <div className="flex justify-between items-center">
+                          <div className="flex items-center gap-1.5">
+                            <span className="font-bold text-white text-sm">{row.fruit_type}</span>
+                            <span className="px-1.5 py-0.5 bg-blue-500/10 text-blue-400 rounded text-[9px] uppercase tracking-wide font-sans">{row.quality_grade}</span>
+                          </div>
+                          <span className="text-xs font-bold text-slate-350">{row.qty} Crates</span>
+                        </div>
+                        
+                        <div className="flex justify-between items-end mt-1 text-xs">
+                          <div>
+                            {selectedBuyerFilter ? null : (
+                              <div className="text-slate-400">
+                                Buyer: <span className="font-semibold text-slate-200">{row.buyer_name}</span>
+                              </div>
+                            )}
+                            <p className="text-[10px] text-slate-500 font-mono mt-0.5">
+                              Rate: ₹{row.rate_per_kg}/kg ({row.net_weight_kg.toFixed(1)}kg Net)
+                            </p>
+                          </div>
+                          <div className="text-right">
+                            <span className="font-black font-mono text-white">₹{row.sale_amount.toLocaleString('en-IN')}</span>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </>
               )}
 
               {/* Combined View: Commission banner + all copies stacked */}
               {selectedBuyerFilter === ALL_COPIES_KEY && (
                 <div className="space-y-6">
                   {/* Agent Commission Banner */}
-                  <div className="flex items-center gap-3 bg-amber-500/8 border border-amber-500/25 rounded-2xl p-4">
+                  <div className="flex items-center gap-4 bg-amber-500/5 border border-amber-500/20 rounded-2xl p-5 shadow-lg relative overflow-hidden glow-amber">
                     <div className="w-9 h-9 rounded-xl bg-amber-500/15 flex items-center justify-center flex-shrink-0">
                       <TrendingUp className="w-4 h-4 text-amber-400" />
                     </div>
@@ -786,48 +803,48 @@ export default function Lots() {
                       </p>
                     </div>
                     <div className="text-right">
-                      <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">Gross Sale</p>
+                      <p className="text-[10px] text-slate-550 font-bold uppercase tracking-widest">Gross Sale</p>
                       <p className="text-sm font-black font-mono text-white mt-0.5">₹{activeCrates.reduce((s, c) => s + c.sale_amount, 0).toLocaleString('en-IN')}</p>
                     </div>
                   </div>
 
                   {/* Seller Copy Block */}
-                  <div className="border border-slate-800/80 rounded-2xl overflow-hidden">
-                    <div className="bg-slate-900 px-4 py-2.5 flex items-center gap-2 border-b border-slate-800/80">
-                      <span className="w-2 h-2 rounded-full bg-emerald-400 inline-block"></span>
+                  <div className="border border-slate-850 rounded-2xl overflow-hidden bg-slate-900/10 shadow-lg">
+                    <div className="bg-slate-950/65 px-4 py-3 flex items-center gap-2.5 border-b border-slate-850/80">
+                      <span className="w-2 h-2 rounded-full bg-emerald-400 inline-block animate-pulse-slow"></span>
                       <span className="text-[10px] font-bold uppercase tracking-widest text-emerald-400">Seller Copy — {selectedLot.seller_name}</span>
                     </div>
                     <div className="p-4">
-                      <div className="hidden md:block bg-slate-900 border border-slate-850 rounded-xl overflow-hidden">
+                      <div className="hidden md:block bg-slate-950/20 border border-slate-850 rounded-xl overflow-hidden">
                         <table className="w-full text-left text-xs border-collapse">
-                          <thead><tr className="bg-slate-950 text-slate-450 border-b border-slate-850/60 font-bold uppercase text-[9px]">
-                            <th className="py-2.5 px-4">Item</th><th className="py-2.5 px-4 text-center">Crates</th>
-                            <th className="py-2.5 px-4 text-center">Weights</th><th className="py-2.5 px-4 text-center">Rate</th>
-                            <th className="py-2.5 px-4">Buyer</th><th className="py-2.5 px-4 text-right">Sale</th>
+                          <thead><tr className="bg-slate-950/80 text-slate-400 border-b border-slate-850 font-bold uppercase text-[9px] tracking-wider">
+                            <th className="py-3 px-4">Item</th><th className="py-3 px-4 text-center">Crates</th>
+                            <th className="py-3 px-4 text-center">Weights</th><th className="py-3 px-4 text-center">Rate</th>
+                            <th className="py-3 px-4">Buyer</th><th className="py-3 px-4 text-right">Sale</th>
                           </tr></thead>
                           <tbody>
                             {(() => {
                               const raw = activeCrates;
                               if (!groupSimilar) return raw.map((c, i) => (
-                                <tr key={i} className="border-b border-slate-850/60">
-                                  <td className="py-2.5 px-4 font-bold text-white">{c.fruit_type} <span className="text-blue-400 text-[9px]">{c.quality_grade}</span></td>
-                                  <td className="py-2.5 px-4 text-center text-slate-300">{c.qty || 1}</td>
-                                  <td className="py-2.5 px-4 text-center font-mono text-slate-400">{c.net_weight_kg.toFixed(1)}kg / {c.gross_weight_kg.toFixed(1)}kg</td>
-                                  <td className="py-2.5 px-4 text-center font-mono text-slate-300">₹{c.rate_per_kg}/kg</td>
-                                  <td className="py-2.5 px-4 text-slate-300">{c.buyer_name}</td>
-                                  <td className="py-2.5 px-4 text-right font-black font-mono text-white">₹{c.sale_amount.toLocaleString('en-IN')}</td>
+                                <tr key={i} className="border-b border-slate-850/45 hover:bg-slate-800/25 transition-all duration-150">
+                                  <td className="py-3 px-4 font-bold text-white">{c.fruit_type} <span className="text-blue-400 text-[9px] ml-1">[{c.quality_grade}]</span></td>
+                                  <td className="py-3 px-4 text-center text-slate-300">{c.qty || 1}</td>
+                                  <td className="py-3 px-4 text-center font-mono text-slate-400">{c.net_weight_kg.toFixed(1)}kg / {c.gross_weight_kg.toFixed(1)}kg</td>
+                                  <td className="py-3 px-4 text-center font-mono text-slate-350">₹{c.rate_per_kg}/kg</td>
+                                  <td className="py-3 px-4 text-slate-300">{c.buyer_name}</td>
+                                  <td className="py-3 px-4 text-right font-black font-mono text-white">₹{c.sale_amount.toLocaleString('en-IN')}</td>
                                 </tr>
                               ));
                               const groups: Record<string, any> = {};
                               raw.forEach(c => { const k = `${c.fruit_type}_${c.quality_grade}_${c.rate_per_kg}_${c.buyer_name}`; if (!groups[k]) groups[k] = { ...c, qty: 0, net_weight_kg: 0, gross_weight_kg: 0, sale_amount: 0 }; groups[k].qty += (c.qty||1); groups[k].net_weight_kg += c.net_weight_kg; groups[k].gross_weight_kg += c.gross_weight_kg; groups[k].sale_amount += c.sale_amount; });
                               return Object.values(groups).map((g, i) => (
-                                <tr key={i} className="border-b border-slate-850/60">
-                                  <td className="py-2.5 px-4 font-bold text-white">{g.fruit_type} <span className="text-blue-400 text-[9px]">{g.quality_grade}</span></td>
-                                  <td className="py-2.5 px-4 text-center text-slate-300">{g.qty}</td>
-                                  <td className="py-2.5 px-4 text-center font-mono text-slate-400">{g.net_weight_kg.toFixed(1)}kg / {g.gross_weight_kg.toFixed(1)}kg</td>
-                                  <td className="py-2.5 px-4 text-center font-mono text-slate-300">₹{g.rate_per_kg}/kg</td>
-                                  <td className="py-2.5 px-4 text-slate-300">{g.buyer_name}</td>
-                                  <td className="py-2.5 px-4 text-right font-black font-mono text-white">₹{g.sale_amount.toLocaleString('en-IN')}</td>
+                                <tr key={i} className="border-b border-slate-850/45 hover:bg-slate-800/25 transition-all duration-150">
+                                  <td className="py-3 px-4 font-bold text-white">{g.fruit_type} <span className="text-blue-400 text-[9px] ml-1">[{g.quality_grade}]</span></td>
+                                  <td className="py-3 px-4 text-center text-slate-300">{g.qty}</td>
+                                  <td className="py-3 px-4 text-center font-mono text-slate-400">{g.net_weight_kg.toFixed(1)}kg / {g.gross_weight_kg.toFixed(1)}kg</td>
+                                  <td className="py-3 px-4 text-center font-mono text-slate-350">₹{g.rate_per_kg}/kg</td>
+                                  <td className="py-3 px-4 text-slate-300">{g.buyer_name}</td>
+                                  <td className="py-3 px-4 text-right font-black font-mono text-white">₹{g.sale_amount.toLocaleString('en-IN')}</td>
                                 </tr>
                               ));
                             })()}
@@ -835,13 +852,13 @@ export default function Lots() {
                         </table>
                       </div>
                       <div className="flex justify-end mt-4">
-                        <div className="w-full md:w-72 space-y-2 bg-slate-950/30 border border-slate-800/80 p-4 rounded-xl">
+                        <div className="w-full md:w-72 space-y-2 bg-slate-950/40 border border-slate-850 p-4 rounded-xl">
                           <div className="flex justify-between text-xs text-slate-400">
                             <span>Gross Sales:</span>
                             <strong className="font-mono text-white">₹{activeCrates.reduce((s, c) => s + c.sale_amount, 0).toLocaleString('en-IN')}</strong>
                           </div>
-                          <div className="border-t border-slate-800 pt-2">
-                            <span className="text-[10px] text-rose-400 font-bold uppercase tracking-wider block mb-1">Seller Deductions</span>
+                          <div className="border-t border-slate-850 pt-2">
+                            <span className="text-[10px] text-rose-450 font-bold uppercase tracking-wider block mb-1">Seller Deductions</span>
                             {activeCharges.filter(ch => !ch.buyer_id).map(ch => (
                               <div key={ch.id} className="flex justify-between text-xs text-slate-400 py-0.5">
                                 <span>{ch.notes}:</span>
@@ -849,7 +866,7 @@ export default function Lots() {
                               </div>
                             ))}
                           </div>
-                          <div className="flex justify-between border-t border-slate-800 pt-2 text-sm font-black text-white">
+                          <div className="flex justify-between border-t border-slate-850 pt-2 text-sm font-black text-white">
                             <span>Net Seller Payable:</span>
                             <span className="text-emerald-400 font-mono">₹{selectedLot.net_payable_to_seller.toLocaleString('en-IN')}</span>
                           </div>
@@ -865,27 +882,27 @@ export default function Lots() {
                     const buyerGross = buyerCrates.reduce((s, c) => s + c.sale_amount, 0);
                     const buyerExtra = buyerCharges.reduce((s, ch) => s + ch.amount, 0);
                     return (
-                      <div key={buyerName} className="border border-slate-800/80 rounded-2xl overflow-hidden">
-                        <div className="bg-slate-900 px-4 py-2.5 flex items-center gap-2 border-b border-slate-800/80">
-                          <span className="w-2 h-2 rounded-full bg-blue-400 inline-block"></span>
+                      <div key={buyerName} className="border border-slate-850 rounded-2xl overflow-hidden bg-slate-900/10 shadow-lg">
+                        <div className="bg-slate-950/65 px-4 py-3 flex items-center gap-2.5 border-b border-slate-850/80">
+                          <span className="w-2 h-2 rounded-full bg-blue-400 inline-block animate-pulse-slow"></span>
                           <span className="text-[10px] font-bold uppercase tracking-widest text-blue-400">Buyer Copy — {buyerName}</span>
                         </div>
                         <div className="p-4">
-                          <div className="hidden md:block bg-slate-900 border border-slate-850 rounded-xl overflow-hidden">
+                          <div className="hidden md:block bg-slate-950/20 border border-slate-850 rounded-xl overflow-hidden">
                             <table className="w-full text-left text-xs border-collapse">
-                              <thead><tr className="bg-slate-950 text-slate-450 border-b border-slate-850/60 font-bold uppercase text-[9px]">
-                                <th className="py-2.5 px-4">Item</th><th className="py-2.5 px-4 text-center">Crates</th>
-                                <th className="py-2.5 px-4 text-center">Weights</th><th className="py-2.5 px-4 text-center">Rate</th>
-                                <th className="py-2.5 px-4 text-right">Amount</th>
+                              <thead><tr className="bg-slate-950/80 text-slate-400 border-b border-slate-850 font-bold uppercase text-[9px] tracking-wider">
+                                <th className="py-3 px-4">Item</th><th className="py-3 px-4 text-center">Crates</th>
+                                <th className="py-3 px-4 text-center">Weights</th><th className="py-3 px-4 text-center">Rate</th>
+                                <th className="py-3 px-4 text-right">Amount</th>
                               </tr></thead>
                               <tbody>
                                 {buyerCrates.map((c, i) => (
-                                  <tr key={i} className="border-b border-slate-850/60">
-                                    <td className="py-2.5 px-4 font-bold text-white">{c.fruit_type} <span className="text-blue-400 text-[9px]">{c.quality_grade}</span></td>
-                                    <td className="py-2.5 px-4 text-center text-slate-300">{c.qty || 1}</td>
-                                    <td className="py-2.5 px-4 text-center font-mono text-slate-400">{c.net_weight_kg.toFixed(1)}kg / {c.gross_weight_kg.toFixed(1)}kg</td>
-                                    <td className="py-2.5 px-4 text-center font-mono text-slate-300">₹{c.rate_per_kg}/kg</td>
-                                    <td className="py-2.5 px-4 text-right font-black font-mono text-white">₹{c.sale_amount.toLocaleString('en-IN')}</td>
+                                  <tr key={i} className="border-b border-slate-850/45 hover:bg-slate-800/25 transition-all duration-150">
+                                    <td className="py-3 px-4 font-bold text-white">{c.fruit_type} <span className="text-blue-400 text-[9px] ml-1">[{c.quality_grade}]</span></td>
+                                    <td className="py-3 px-4 text-center text-slate-300">{c.qty || 1}</td>
+                                    <td className="py-3 px-4 text-center font-mono text-slate-400">{c.net_weight_kg.toFixed(1)}kg / {c.gross_weight_kg.toFixed(1)}kg</td>
+                                    <td className="py-3 px-4 text-center font-mono text-slate-350">₹{c.rate_per_kg}/kg</td>
+                                    <td className="py-3 px-4 text-right font-black font-mono text-white">₹{c.sale_amount.toLocaleString('en-IN')}</td>
                                   </tr>
                                 ))}
                               </tbody>
@@ -894,10 +911,10 @@ export default function Lots() {
                           {/* Mobile buyer crate cards */}
                           <div className="md:hidden space-y-2 mb-3">
                             {buyerCrates.map((c, i) => (
-                              <div key={i} className="p-3 bg-slate-950/40 border border-slate-800/80 rounded-xl flex justify-between text-xs">
+                              <div key={i} className="p-3.5 bg-slate-950/50 border border-slate-850/60 rounded-xl flex justify-between items-center text-xs">
                                 <div>
                                   <span className="font-bold text-white">{c.fruit_type}</span>
-                                  <span className="ml-1.5 px-1 bg-blue-500/10 text-blue-400 rounded text-[9px]">{c.quality_grade}</span>
+                                  <span className="ml-1.5 px-1 bg-blue-500/10 text-blue-400 rounded text-[9px]">[{c.quality_grade}]</span>
                                   <p className="text-slate-500 font-mono mt-0.5">{c.qty||1} crates · ₹{c.rate_per_kg}/kg · {c.net_weight_kg.toFixed(1)}kg</p>
                                 </div>
                                 <span className="font-black font-mono text-white">₹{c.sale_amount.toLocaleString('en-IN')}</span>
@@ -905,13 +922,13 @@ export default function Lots() {
                             ))}
                           </div>
                           <div className="flex justify-end mt-3">
-                            <div className="w-full md:w-72 space-y-2 bg-slate-950/30 border border-slate-800/80 p-4 rounded-xl">
+                            <div className="w-full md:w-72 space-y-2 bg-slate-950/40 border border-slate-850 p-4 rounded-xl">
                               <div className="flex justify-between text-xs text-slate-400">
                                 <span>Gross Sale:</span>
                                 <strong className="font-mono text-white">₹{buyerGross.toLocaleString('en-IN')}</strong>
                               </div>
                               {buyerCharges.length > 0 && (
-                                <div className="border-t border-slate-800 pt-2">
+                                <div className="border-t border-slate-850 pt-2">
                                   <span className="text-[10px] text-emerald-400 font-bold uppercase tracking-wider block mb-1">Additions</span>
                                   {buyerCharges.map(ch => (
                                     <div key={ch.id} className="flex justify-between text-xs text-slate-400 py-0.5">
@@ -921,7 +938,7 @@ export default function Lots() {
                                   ))}
                                 </div>
                               )}
-                              <div className="flex justify-between border-t border-slate-800 pt-2 text-sm font-black text-white">
+                              <div className="flex justify-between border-t border-slate-850 pt-2 text-sm font-black text-white">
                                 <span>Total Invoice Due:</span>
                                 <span className="font-mono">₹{(buyerGross + buyerExtra).toLocaleString('en-IN')}</span>
                               </div>
@@ -936,55 +953,55 @@ export default function Lots() {
 
               {/* Standard Financial Deductions & Totals (non-combined view) */}
               {selectedBuyerFilter !== ALL_COPIES_KEY && (
-              <div className="flex justify-end pt-4">
-                <div className="w-full md:w-80 space-y-3 bg-slate-950/20 border border-slate-800/80 p-5 rounded-2xl">
-                  <div className="flex justify-between items-center text-xs text-slate-400">
-                    <span>Gross Sales:</span>
-                    <strong className="text-white font-mono text-sm">₹{getDisplayRows().reduce((s, r) => s + r.sale_amount, 0).toLocaleString('en-IN')}</strong>
-                  </div>
+                <div className="flex justify-end pt-4">
+                  <div className="w-full md:w-80 space-y-3 bg-slate-950/45 border border-slate-850 p-5 rounded-2xl shadow-lg shadow-black/10">
+                    <div className="flex justify-between items-center text-xs text-slate-450">
+                      <span>Gross Sales:</span>
+                      <strong className="text-white font-mono text-sm">₹{getDisplayRows().reduce((s, r) => s + r.sale_amount, 0).toLocaleString('en-IN')}</strong>
+                    </div>
 
-                  {!selectedBuyerFilter ? (
-                    <>
-                      <div className="border-t border-slate-800/85 my-2 pt-2">
-                        <span className="text-[10px] text-rose-450 font-bold uppercase tracking-wider block mb-1.5">Seller Deductions & Fees</span>
-                        {activeCharges.filter(ch => !ch.buyer_id).map(ch => (
-                          <div key={ch.id} className="flex justify-between text-xs text-slate-400 py-1">
-                            <span>{ch.notes}:</span>
-                            <span className="text-rose-400 font-mono">-₹{ch.amount.toLocaleString('en-IN')}</span>
-                          </div>
-                        ))}
-                      </div>
-                      <div className="flex justify-between items-center border-t border-slate-850 pt-3 text-sm font-black text-white">
-                        <span>Net Seller Payable:</span>
-                        <span className="text-emerald-450 font-mono text-base">
-                          ₹{(selectedLot.net_payable_to_seller).toLocaleString('en-IN')}
-                        </span>
-                      </div>
-                    </>
-                  ) : (
-                    <>
-                      <div className="border-t border-slate-800/85 my-2 pt-2">
-                        <span className="text-[10px] text-emerald-400 font-bold uppercase tracking-wider block mb-1.5">Buyer Additions & Surcharges</span>
-                        {activeCharges.filter(ch => ch.buyer_id && ch.buyer_name === selectedBuyerFilter).map(ch => (
-                          <div key={ch.id} className="flex justify-between text-xs text-slate-400 py-1">
-                            <span>{ch.notes}:</span>
-                            <span className="text-emerald-400 font-mono">+₹{ch.amount.toLocaleString('en-IN')}</span>
-                          </div>
-                        ))}
-                      </div>
-                      <div className="flex justify-between items-center border-t border-slate-850 pt-3 text-sm font-black text-white">
-                        <span>Total Invoice Bill:</span>
-                        <span className="text-white font-mono text-base">
-                          ₹{(
-                            getDisplayRows().reduce((s, r) => s + r.sale_amount, 0) +
-                            activeCharges.filter(ch => ch.buyer_id && ch.buyer_name === selectedBuyerFilter).reduce((s, ch) => s + ch.amount, 0)
-                          ).toLocaleString('en-IN')}
-                        </span>
-                      </div>
-                    </>
-                  )}
+                    {!selectedBuyerFilter ? (
+                      <>
+                        <div className="border-t border-slate-850 my-2 pt-2">
+                          <span className="text-[10px] text-rose-400 font-bold uppercase tracking-wider block mb-1.5">Seller Deductions & Fees</span>
+                          {activeCharges.filter(ch => !ch.buyer_id).map(ch => (
+                            <div key={ch.id} className="flex justify-between text-xs text-slate-400 py-1">
+                              <span>{ch.notes}:</span>
+                              <span className="text-rose-400 font-mono">-₹{ch.amount.toLocaleString('en-IN')}</span>
+                            </div>
+                          ))}
+                        </div>
+                        <div className="flex justify-between items-center border-t border-slate-850 pt-3 text-sm font-black text-white">
+                          <span>Net Seller Payable:</span>
+                          <span className="text-emerald-400 font-mono text-base">
+                            ₹{(selectedLot.net_payable_to_seller).toLocaleString('en-IN')}
+                          </span>
+                        </div>
+                      </>
+                    ) : (
+                      <>
+                        <div className="border-t border-slate-850 my-2 pt-2">
+                          <span className="text-[10px] text-emerald-450 font-bold uppercase tracking-wider block mb-1.5">Buyer Additions & Surcharges</span>
+                          {activeCharges.filter(ch => ch.buyer_id && ch.buyer_name === selectedBuyerFilter).map(ch => (
+                            <div key={ch.id} className="flex justify-between text-xs text-slate-450 py-1">
+                              <span>{ch.notes}:</span>
+                              <span className="text-emerald-400 font-mono">+₹{ch.amount.toLocaleString('en-IN')}</span>
+                            </div>
+                          ))}
+                        </div>
+                        <div className="flex justify-between items-center border-t border-slate-850 pt-3 text-sm font-black text-white">
+                          <span>Total Invoice Bill:</span>
+                          <span className="text-white font-mono text-base">
+                            ₹{(
+                              getDisplayRows().reduce((s, r) => s + r.sale_amount, 0) +
+                              activeCharges.filter(ch => ch.buyer_id && ch.buyer_name === selectedBuyerFilter).reduce((s, ch) => s + ch.amount, 0)
+                            ).toLocaleString('en-IN')}
+                          </span>
+                        </div>
+                      </>
+                    )}
+                  </div>
                 </div>
-              </div>
               )}
             </div>
           )}

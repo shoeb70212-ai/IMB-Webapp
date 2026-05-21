@@ -109,6 +109,7 @@ export interface SystemSettings {
   owner_name: string;
   phone: string;
   address: string;
+  business_logo?: string;
   default_commission_percent: number;
   default_labour_per_crate: number;
   default_weighing_per_crate: number;

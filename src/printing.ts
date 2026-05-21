@@ -1,5 +1,20 @@
 import { Lot, CrateAllocation, LotCharge, Party } from './types';
 
+// ─── Page Size Types ─────────────────────────────────────────────────────────
+// Supported print page sizes across the entire application.
+export type PrintPageSize = 'a4' | 'a5' | 'letter' | 'receipt';
+
+/** Returns the CSS @page size string and margins for a given PrintPageSize */
+export function getPageCss(size: PrintPageSize): { pageSize: string; margin: string } {
+  switch (size) {
+    case 'a5':      return { pageSize: 'A5',        margin: '10mm' };
+    case 'letter':  return { pageSize: 'Letter',    margin: '15mm' };
+    case 'receipt': return { pageSize: '80mm auto', margin: '2mm'  };
+    case 'a4':
+    default:        return { pageSize: 'A4',        margin: '12mm' };
+  }
+}
+
 // Browser-based system printing helper
 // Mobile browsers (iOS Safari, Android Chrome) block iframe.contentWindow.print().
 // We detect mobile and inject HTML directly into the main document instead.
@@ -8,10 +23,13 @@ const isMobileBrowser = (): boolean =>
   (typeof navigator !== 'undefined' && navigator.maxTouchPoints > 0) ||
   ('ontouchstart' in window);
 
-function printViaMobileDom(html: string, format: 'a4' | 'receipt'): void {
+function printViaMobileDom(html: string, size: PrintPageSize): void {
   // Remove any stale mount point
   const existing = document.getElementById('print-mount-point');
   if (existing) existing.remove();
+
+  const { pageSize, margin } = getPageCss(size);
+  const formatClass = size === 'receipt' ? 'print-receipt' : 'print-a4';
 
   // Build a wrapper with all parent styles copied inline
   let stylesHtml = '';
@@ -24,18 +42,18 @@ function printViaMobileDom(html: string, format: 'a4' | 'receipt'): void {
   mount.innerHTML = `
     <style>
       ${stylesHtml}
-      @page { size: ${format === 'a4' ? 'A4' : '80mm auto'}; margin: ${format === 'a4' ? '15mm' : '2mm'}; }
+      @page { size: ${pageSize}; margin: ${margin}; }
       body { background: white !important; color: black !important; }
     </style>
-    <div class="print-${format}">
+    <div class="${formatClass}">
       ${html}
     </div>
   `;
   document.body.appendChild(mount);
-  document.body.classList.add('is-printing', `print-${format}`);
+  document.body.classList.add('is-printing', formatClass);
 
   // Force synchronous layout reflow so mobile browser paints the mount point before print dialog
-  void mount.offsetHeight; 
+  void mount.offsetHeight;
 
   let cleaned = false;
   const cleanup = (delay = 1000) => {
@@ -53,38 +71,32 @@ function printViaMobileDom(html: string, format: 'a4' | 'receipt'): void {
   };
 
   const handleAfterPrint = () => {
-    // If afterprint fires immediately, delay removal to let the mobile print spooler finish rendering
     cleanup(3000);
   };
 
   const handleFocus = () => {
-    // If user returns focus to the window (dialog closed), clean up in 1 second
     cleanup(1000);
   };
 
   window.addEventListener('afterprint', handleAfterPrint);
   window.addEventListener('focus', handleFocus);
 
-  // Failsafe cleanup in case neither event fires or is supported correctly
-  setTimeout(() => {
-    cleanup(500);
-  }, 10000);
-
-  // Use a longer timeout for mobile devices to reliably generate the PDF from the updated DOM
-  setTimeout(() => {
-    window.print();
-  }, 500);
+  setTimeout(() => { cleanup(500); }, 10000);
+  setTimeout(() => { window.print(); }, 500);
 }
 
-export function printViaBrowser(html: string, format: 'a4' | 'receipt'): void;
-export function printViaBrowser(format: 'a4' | 'receipt'): void;
-export function printViaBrowser(htmlOrFormat: string | 'a4' | 'receipt', format?: 'a4' | 'receipt'): void {
-  if (typeof htmlOrFormat === 'string' && format) {
+export function printViaBrowser(html: string, size: PrintPageSize): void;
+export function printViaBrowser(size: PrintPageSize): void;
+export function printViaBrowser(htmlOrSize: string | PrintPageSize, size?: PrintPageSize): void {
+  if (typeof htmlOrSize === 'string' && size) {
     // Mobile: use direct DOM injection so the native print dialog fires correctly
     if (isMobileBrowser()) {
-      printViaMobileDom(htmlOrFormat, format);
+      printViaMobileDom(htmlOrSize, size);
       return;
     }
+
+    const { pageSize, margin } = getPageCss(size);
+    const formatClass = size === 'receipt' ? 'print-receipt' : 'print-a4';
 
     // Desktop: use hidden iframe for flicker-free background printing
     const iframe = document.createElement('iframe');
@@ -93,9 +105,9 @@ export function printViaBrowser(htmlOrFormat: string | 'a4' | 'receipt', format?
     iframe.style.height = '0px';
     iframe.style.border = 'none';
     iframe.style.left = '-9999px';
-    
+
     document.body.appendChild(iframe);
-    
+
     const doc = iframe.contentWindow?.document || iframe.contentDocument;
     if (doc) {
       doc.open();
@@ -104,7 +116,7 @@ export function printViaBrowser(htmlOrFormat: string | 'a4' | 'receipt', format?
       for (const el of Array.from(document.head.querySelectorAll('style, link[rel="stylesheet"]'))) {
         stylesHtml += el.outerHTML;
       }
-      
+
       doc.write(`
         <html>
           <head>
@@ -114,16 +126,17 @@ export function printViaBrowser(htmlOrFormat: string | 'a4' | 'receipt', format?
               body {
                 background: white !important;
                 color: black !important;
-                padding: 10px !important;
+                padding: 0 !important;
+                margin: 0 !important;
               }
               @page {
-                size: ${format === 'a4' ? 'A4' : '80mm auto'};
-                margin: ${format === 'a4' ? '15mm' : '2mm'};
+                size: ${pageSize};
+                margin: ${margin};
               }
             </style>
           </head>
-          <body class="print-${format}">
-            ${htmlOrFormat}
+          <body class="${formatClass}">
+            ${htmlOrSize}
             <script>
               window.onload = function() {
                 setTimeout(function() {
@@ -132,19 +145,20 @@ export function printViaBrowser(htmlOrFormat: string | 'a4' | 'receipt', format?
                   window.parent.document.body.removeChild(window.frameElement);
                 }, 200);
               };
-            </script>
+            <\/script>
           </body>
         </html>
       `);
       doc.close();
     }
   } else {
-    const actualFormat = (htmlOrFormat as 'a4' | 'receipt') || 'a4';
+    const actualSize = (htmlOrSize as PrintPageSize) || 'a4';
+    const formatClass = actualSize === 'receipt' ? 'print-receipt' : 'print-a4';
     const originalClassName = document.body.className;
-    
+
     document.body.classList.remove('print-a4', 'print-receipt');
-    document.body.classList.add(`print-${actualFormat}`);
-    
+    document.body.classList.add(formatClass);
+
     setTimeout(() => {
       window.print();
       document.body.className = originalClassName;

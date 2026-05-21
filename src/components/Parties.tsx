@@ -134,17 +134,17 @@ export default function Parties({ onNavigate }: PartiesProps) {
   });
 
   return (
-    <div className="flex-1 overflow-y-auto p-6 space-y-6 animate-fade-in">
+    <div className="flex-1 overflow-y-auto p-6 space-y-6 animate-fade-in pb-20 lg:pb-6">
       {/* Header */}
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-extrabold tracking-tight text-white font-display">Directory</h1>
+          <h1 className="text-3xl font-extrabold tracking-tight text-white font-display uppercase tracking-wider">Directory</h1>
           <p className="text-slate-400 text-sm mt-1">Manage seller and buyer registration records.</p>
         </div>
         <button 
           id="btn-add-party"
           onClick={openAddModal}
-          className="px-5 py-2.5 bg-blue-600 hover:bg-blue-500 text-white font-semibold rounded-xl flex items-center gap-2 cursor-pointer shadow-lg hover:shadow-blue-500/20 transition duration-200"
+          className="px-5 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-650 hover:from-blue-500 hover:to-indigo-500 text-white font-extrabold rounded-xl flex items-center gap-2 cursor-pointer shadow-lg shadow-blue-500/10 hover:scale-[1.02] transition"
         >
           <UserPlus className="w-5 h-5" />
           <span>Add Party</span>
@@ -152,17 +152,17 @@ export default function Parties({ onNavigate }: PartiesProps) {
       </div>
 
       {/* Control bar */}
-      <div className="flex flex-col sm:flex-row gap-4 justify-between items-center bg-slate-900 border border-slate-800 p-4 rounded-2xl">
+      <div className="flex flex-col sm:flex-row gap-4 justify-between items-center glass-panel p-4 rounded-3xl border border-slate-850 shadow-xl">
         {/* Tabs */}
-        <div className="flex bg-slate-950 p-1.5 rounded-xl border border-slate-800 w-full sm:w-auto">
+        <div className="flex bg-slate-950 p-1.5 rounded-2xl border border-slate-850 w-full sm:w-auto shadow-inner">
           {(['all', 'seller', 'buyer'] as const).map(tab => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
-              className={`flex-1 sm:flex-none px-5 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wider transition-all cursor-pointer ${
+              className={`flex-1 sm:flex-none px-5 py-2 rounded-xl text-xs font-extrabold uppercase tracking-wider transition-all cursor-pointer ${
                 activeTab === tab
-                  ? 'bg-blue-600 text-white shadow-md'
-                  : 'text-slate-400 hover:text-slate-200'
+                  ? 'bg-blue-600 text-white shadow-md shadow-blue-500/20 scale-102'
+                  : 'text-slate-500 hover:text-slate-200'
               }`}
             >
               {tab}s
@@ -172,13 +172,13 @@ export default function Parties({ onNavigate }: PartiesProps) {
 
         {/* Search */}
         <div className="relative w-full sm:w-[300px]">
-          <Search className="absolute left-3.5 top-3 w-4 h-4 text-slate-500" />
+          <Search className="absolute left-3.5 top-3.5 w-4 h-4 text-slate-500" />
           <input
             type="text"
             placeholder="Search name, phone, city..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 bg-slate-950 border border-slate-800 rounded-xl text-sm text-slate-200 focus:outline-none focus:border-blue-600 placeholder-slate-500"
+            className="w-full pl-10 pr-4 py-2.5 bg-slate-950 border border-slate-850 hover:border-slate-700 focus:border-blue-500 focus:ring-1 focus:ring-blue-500/20 rounded-xl text-xs text-slate-200 focus:outline-none placeholder-slate-600 transition"
           />
         </div>
       </div>
@@ -186,8 +186,8 @@ export default function Parties({ onNavigate }: PartiesProps) {
       {/* Directory Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
         {filteredParties.length === 0 ? (
-          <div className="col-span-full py-16 flex flex-col items-center justify-center text-slate-500 border border-dashed border-slate-800 rounded-2xl bg-slate-900/30">
-            <Search className="w-12 h-12 mb-3 opacity-30" />
+          <div className="col-span-full py-16 flex flex-col items-center justify-center text-slate-500 border border-dashed border-slate-850 rounded-3xl bg-slate-900/10">
+            <Search className="w-12 h-12 mb-3 opacity-30 text-blue-400" />
             <span className="font-semibold text-slate-400">No parties found</span>
             <p className="text-slate-500 text-xs mt-1">Try refining your search query or add a new profile.</p>
           </div>
@@ -195,19 +195,21 @@ export default function Parties({ onNavigate }: PartiesProps) {
           filteredParties.map(p => (
             <div 
               key={p.id} 
-              className={`bg-slate-900 border rounded-2xl p-5 transition duration-200 flex flex-col justify-between min-h-[195px] relative group overflow-hidden interactive-card ${
-                p.archived ? 'border-dashed border-slate-800 opacity-60' : 'border-slate-800'
-              }`}
+              className={`glass-panel border rounded-3xl p-6 transition-all duration-300 flex flex-col justify-between min-h-[210px] relative group overflow-hidden ${
+                p.archived 
+                  ? 'border-dashed border-slate-800 opacity-50' 
+                  : p.type === 'seller'
+                    ? 'border-slate-850 glow-blue' 
+                    : 'border-slate-850 glow-emerald'
+              } hover-lift`}
             >
-              {/* Top accent line */}
-              <div className={`absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r ${
-                p.type === 'seller' 
-                  ? 'from-blue-600 to-blue-700' 
-                  : 'from-emerald-500 to-emerald-600'
-              }`} />
+              {/* Category Gradient Glow Background */}
+              <div className={`absolute -right-20 -top-20 w-40 h-40 rounded-full blur-3xl group-hover:opacity-100 transition-opacity duration-300 ${
+                p.type === 'seller' ? 'bg-blue-500/5 group-hover:bg-blue-500/10' : 'bg-emerald-500/5 group-hover:bg-emerald-500/10'
+              }`}></div>
 
               {/* Top Row */}
-              <div className="flex justify-between items-start">
+              <div className="flex justify-between items-start relative z-10">
                 <div className="truncate max-w-[70%]">
                   <span className={`px-2.5 py-0.5 rounded-full text-[9px] uppercase font-extrabold tracking-wider ${
                     p.type === 'seller' 
@@ -220,17 +222,17 @@ export default function Parties({ onNavigate }: PartiesProps) {
                 </div>
                 
                 {/* Actions */}
-                <div className="flex items-center gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                <div className="flex items-center gap-1.5 lg:opacity-0 lg:group-hover:opacity-100 transition-opacity duration-200">
                   <button 
                     onClick={() => openEditModal(p)}
-                    className="p-1.5 hover:bg-slate-800 rounded-lg text-slate-400 hover:text-white cursor-pointer"
+                    className="p-2 hover:bg-slate-800/80 rounded-xl text-slate-400 hover:text-white cursor-pointer transition"
                     title="Edit Details"
                   >
                     <Edit2 className="w-4 h-4" />
                   </button>
                   <button 
                     onClick={() => handleToggleArchive(p)}
-                    className="p-1.5 hover:bg-slate-800 rounded-lg text-slate-400 hover:text-rose-400 cursor-pointer"
+                    className="p-2 hover:bg-rose-500/10 rounded-xl text-slate-400 hover:text-rose-450 cursor-pointer transition"
                     title={p.archived ? "Restore Party" : "Archive Party"}
                   >
                     <Archive className="w-4 h-4" />
@@ -239,31 +241,31 @@ export default function Parties({ onNavigate }: PartiesProps) {
               </div>
 
               {/* Middle Row Details */}
-              <div className="space-y-1.5 mt-2 text-xs text-slate-400">
-                <div className="flex items-center gap-2">
-                  <Phone className="w-3.5 h-3.5 text-slate-600 shrink-0" />
-                  <span className="font-mono">{p.phone || 'No Phone Added'}</span>
+              <div className="space-y-2 mt-4 text-xs text-slate-400 relative z-10">
+                <div className="flex items-center gap-2.5">
+                  <Phone className="w-4 h-4 text-slate-500 shrink-0" />
+                  <span className="font-mono text-slate-350">{p.phone || 'No Phone Registered'}</span>
                 </div>
-                <div className="flex items-center gap-2">
-                  <MapPin className="w-3.5 h-3.5 text-slate-600 shrink-0" />
-                  <span className="truncate">{p.address || 'No Address Added'}</span>
+                <div className="flex items-center gap-2.5">
+                  <MapPin className="w-4 h-4 text-slate-500 shrink-0" />
+                  <span className="truncate text-slate-350">{p.address || 'No Address Registered'}</span>
                 </div>
               </div>
 
               {/* Bottom Row - Ledger Summary / Limits */}
-              <div className="flex justify-between items-center mt-3 pt-3 border-t border-slate-800/80">
+              <div className="flex justify-between items-center mt-5 pt-4 border-t border-slate-850 relative z-10">
                 <div>
                   {p.type === 'buyer' && (
-                    <div className="text-[10px] text-slate-500 font-medium">
-                      Limit: <span className="font-mono text-slate-400 font-semibold">₹{p.credit_limit?.toLocaleString('en-IN')}</span>
+                    <div className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">
+                      Limit: <span className="font-mono text-slate-350 font-extrabold text-xs ml-1">₹{p.credit_limit?.toLocaleString('en-IN')}</span>
                     </div>
                   )}
                 </div>
                 
                 {p.type === 'buyer' ? (
                   <div className="text-right">
-                    <span className="text-[10px] text-slate-500 block uppercase font-bold">Outstanding</span>
-                    <span className={`text-sm font-bold font-mono ${
+                    <span className="text-[10px] text-slate-500 block uppercase font-bold tracking-wider">Outstanding</span>
+                    <span className={`text-sm font-extrabold font-mono ${
                       p.current_outstanding > 0 ? 'text-rose-400' : 'text-emerald-400'
                     }`}>
                       ₹{p.current_outstanding.toLocaleString('en-IN')}
@@ -272,7 +274,7 @@ export default function Parties({ onNavigate }: PartiesProps) {
                 ) : (
                   <button 
                     onClick={() => onNavigate('lots')}
-                    className="text-[10px] font-bold text-blue-400 hover:underline uppercase tracking-wider cursor-pointer"
+                    className="text-[10px] font-extrabold text-blue-400 hover:text-blue-300 hover:underline uppercase tracking-widest cursor-pointer transition"
                   >
                     View Lots &rarr;
                   </button>
@@ -282,7 +284,7 @@ export default function Parties({ onNavigate }: PartiesProps) {
               {/* Highlight balance alert */}
               {p.type === 'buyer' && p.credit_limit && p.current_outstanding > p.credit_limit && (
                 <div className="absolute right-3 top-3 text-rose-500 animate-pulse" title="Credit limit exceeded!">
-                  <ShieldAlert className="w-4 h-4" />
+                  <ShieldAlert className="w-4.5 h-4.5" />
                 </div>
               )}
             </div>
@@ -293,18 +295,18 @@ export default function Parties({ onNavigate }: PartiesProps) {
       {/* Create/Edit Modal */}
       {modalOpen && (
         <div className="fixed inset-0 z-50 flex items-end lg:items-center justify-center p-0 lg:p-4 bg-black/60 backdrop-blur-sm">
-          <div className="bg-slate-900 border border-slate-800 rounded-t-3xl lg:rounded-3xl w-full lg:max-w-md overflow-hidden shadow-2xl animate-fade-in mobile-bottom-sheet lg:relative">
+          <div className="glass-panel border border-slate-850 rounded-t-3xl lg:rounded-3xl w-full lg:max-w-md overflow-hidden shadow-2xl animate-fade-in mobile-bottom-sheet lg:relative p-0">
             {/* Mobile Sheet Handle */}
             <div className="w-12 h-1.5 bg-slate-800 rounded-full mx-auto my-3 block lg:hidden" />
             
             {/* Modal Header */}
             <div className="flex justify-between items-center px-6 py-4 border-b border-slate-850 lg:pt-4 pt-1">
-              <h3 className="text-lg font-bold text-white font-display">
-                {editingParty ? 'Modify Party Details' : 'Register New Party'}
+              <h3 className="text-base lg:text-lg font-bold text-white font-display uppercase tracking-wider">
+                {editingParty ? 'Modify Party' : 'Register New Party'}
               </h3>
               <button 
                 onClick={() => setModalOpen(false)}
-                className="p-1 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800 cursor-pointer"
+                className="p-1.5 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800/80 cursor-pointer transition"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -324,17 +326,17 @@ export default function Parties({ onNavigate }: PartiesProps) {
                 {/* Party Type Select (only on Add mode) */}
                 {!editingParty && (
                   <div>
-                    <label className="text-xs text-slate-400 font-semibold block mb-1.5">Party Type</label>
-                    <div className="grid grid-cols-2 gap-2 bg-slate-950 p-1 border border-slate-800 rounded-xl">
+                    <label className="text-xs text-slate-400 font-semibold block mb-1.5 uppercase tracking-wider">Party Type</label>
+                    <div className="grid grid-cols-2 gap-2 bg-slate-950 p-1 border border-slate-850 rounded-xl">
                       {(['buyer', 'seller'] as const).map(type => (
                         <button
                           key={type}
                           type="button"
                           onClick={() => setFormData(prev => ({ ...prev, type }))}
-                          className={`py-1.5 rounded-lg text-xs font-bold uppercase tracking-wider cursor-pointer ${
+                          className={`py-1.5 rounded-lg text-xs font-bold uppercase tracking-wider cursor-pointer transition ${
                             formData.type === type
-                              ? 'bg-blue-600 text-white'
-                              : 'text-slate-500 hover:text-slate-300'
+                              ? 'bg-blue-600 text-white shadow-md shadow-blue-500/20'
+                              : 'text-slate-500 hover:text-slate-350 hover:bg-slate-900/50'
                           }`}
                         >
                           {type}
@@ -346,38 +348,38 @@ export default function Parties({ onNavigate }: PartiesProps) {
 
                 {/* Name */}
                 <div>
-                  <label className="text-xs text-slate-400 font-semibold block mb-1">Full Name</label>
+                  <label className="text-xs text-slate-400 font-bold block mb-1.5 uppercase tracking-wider">Full Name</label>
                   <input
                     type="text"
                     required
                     value={formData.name}
                     onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
                     placeholder="Enter full name"
-                    className="w-full px-4 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-sm text-slate-200 focus:outline-none focus:border-blue-600 placeholder-slate-600"
+                    className="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-850 hover:border-slate-700 focus:border-blue-500 focus:ring-1 focus:ring-blue-500/20 rounded-xl text-xs text-slate-200 focus:outline-none transition duration-200"
                   />
                 </div>
 
                 {/* Phone */}
                 <div>
-                  <label className="text-xs text-slate-400 font-semibold block mb-1">Mobile Phone (Optional)</label>
+                  <label className="text-xs text-slate-400 font-bold block mb-1.5 uppercase tracking-wider">Mobile Phone (Optional)</label>
                   <input
                     type="tel"
                     value={formData.phone}
                     onChange={(e) => setFormData(prev => ({ ...prev, phone: e.target.value }))}
                     placeholder="Enter phone number"
-                    className="w-full px-4 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-sm text-slate-200 focus:outline-none focus:border-blue-600 placeholder-slate-600 font-mono"
+                    className="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-850 hover:border-slate-700 focus:border-blue-500 focus:ring-1 focus:ring-blue-500/20 rounded-xl text-xs text-slate-200 focus:outline-none font-mono transition duration-200"
                   />
                 </div>
 
                 {/* Address */}
                 <div>
-                  <label className="text-xs text-slate-400 font-semibold block mb-1">Address / Mandi Stall (Optional)</label>
+                  <label className="text-xs text-slate-400 font-bold block mb-1.5 uppercase tracking-wider">Address / Stall (Optional)</label>
                   <input
                     type="text"
                     value={formData.address}
                     onChange={(e) => setFormData(prev => ({ ...prev, address: e.target.value }))}
                     placeholder="Enter city or stall number"
-                    className="w-full px-4 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-sm text-slate-200 focus:outline-none focus:border-blue-600 placeholder-slate-600"
+                    className="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-850 hover:border-slate-700 focus:border-blue-500 focus:ring-1 focus:ring-blue-500/20 rounded-xl text-xs text-slate-200 focus:outline-none transition duration-200"
                   />
                 </div>
 
@@ -385,22 +387,22 @@ export default function Parties({ onNavigate }: PartiesProps) {
                 {formData.type === 'buyer' && (
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <label className="text-xs text-slate-400 font-semibold block mb-1">Credit Limit (₹)</label>
+                      <label className="text-xs text-slate-400 font-bold block mb-1.5 uppercase tracking-wider">Credit Limit (₹)</label>
                       <input
                         type="number"
                         min="0"
                         value={formData.credit_limit}
                         onChange={(e) => setFormData(prev => ({ ...prev, credit_limit: e.target.value }))}
-                        className="w-full px-4 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-sm text-slate-200 focus:outline-none focus:border-blue-600 font-mono"
+                        className="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-850 hover:border-slate-700 focus:border-blue-500 focus:ring-1 focus:ring-blue-500/20 rounded-xl text-xs text-slate-200 focus:outline-none font-mono transition duration-200"
                       />
                     </div>
                     <div>
-                      <label className="text-xs text-slate-400 font-semibold block mb-1">Opening Balance (₹)</label>
+                      <label className="text-xs text-slate-400 font-bold block mb-1.5 uppercase tracking-wider">Opening Balance (₹)</label>
                       <input
                         type="number"
                         value={formData.current_outstanding}
                         onChange={(e) => setFormData(prev => ({ ...prev, current_outstanding: e.target.value }))}
-                        className="w-full px-4 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-sm text-slate-200 focus:outline-none focus:border-blue-600 font-mono"
+                        className="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-850 hover:border-slate-700 focus:border-blue-500 focus:ring-1 focus:ring-blue-500/20 rounded-xl text-xs text-slate-200 focus:outline-none font-mono transition duration-200"
                       />
                     </div>
                   </div>
@@ -412,16 +414,16 @@ export default function Parties({ onNavigate }: PartiesProps) {
                 <button
                   type="button"
                   onClick={() => setModalOpen(false)}
-                  className="px-4 py-2 text-xs font-bold text-slate-400 hover:text-white bg-slate-850 hover:bg-slate-800 rounded-lg cursor-pointer transition duration-150"
+                  className="px-4 py-2 bg-slate-900 border border-slate-850 text-xs font-bold text-slate-400 hover:text-white hover:bg-slate-800 rounded-xl cursor-pointer transition duration-150"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2 text-xs font-bold text-white bg-blue-600 hover:bg-blue-500 rounded-lg cursor-pointer flex items-center gap-1.5 shadow-lg shadow-blue-500/10 transition duration-150"
+                  className="px-5 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-650 hover:from-blue-500 hover:to-indigo-500 text-white text-xs font-bold rounded-xl cursor-pointer flex items-center gap-1.5 shadow-lg shadow-blue-500/10 hover:scale-[1.02] transition"
                 >
                   <Check className="w-4 h-4" />
-                  <span>{editingParty ? 'Save Changes' : 'Register'}</span>
+                  <span>{editingParty ? 'Save Changes' : 'Register Party'}</span>
                 </button>
               </div>
             </form>

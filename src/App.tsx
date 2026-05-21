@@ -13,6 +13,7 @@ import KhataLedger from './components/KhataLedger';
 import Cashbook from './components/Cashbook';
 import LabourWages from './components/LabourWages';
 import Settings from './components/Settings';
+import { DEFAULT_BUSINESS_SETTINGS } from './db';
 
 export default function App() {
   // Active Tab: dashboard | parties | new_lot | lots | khata | cashbook | labour | settings
@@ -31,9 +32,27 @@ export default function App() {
   const [businessSettings, setBusinessSettings] = useState(() => {
     try {
       const stored = localStorage.getItem('ca_settings');
-      return stored ? JSON.parse(stored) : {};
+      if (!stored) {
+        localStorage.setItem('ca_settings', JSON.stringify(DEFAULT_BUSINESS_SETTINGS));
+        return DEFAULT_BUSINESS_SETTINGS;
+      }
+      const parsed = JSON.parse(stored);
+      if (!parsed.business_name || parsed.business_name === "Kisan Trading Co." || parsed.business_name === "Kisan Mitra") {
+        const migrated = {
+          ...DEFAULT_BUSINESS_SETTINGS,
+          ...parsed,
+          business_name: DEFAULT_BUSINESS_SETTINGS.business_name,
+          owner_name: DEFAULT_BUSINESS_SETTINGS.owner_name,
+          phone: DEFAULT_BUSINESS_SETTINGS.phone,
+          address: DEFAULT_BUSINESS_SETTINGS.address,
+          business_logo: DEFAULT_BUSINESS_SETTINGS.business_logo
+        };
+        localStorage.setItem('ca_settings', JSON.stringify(migrated));
+        return migrated;
+      }
+      return parsed;
     } catch {
-      return {};
+      return DEFAULT_BUSINESS_SETTINGS;
     }
   });
 
@@ -264,10 +283,10 @@ export default function App() {
     <div className="flex h-screen overflow-hidden bg-slate-950 text-slate-200">
       
       {/* 1. DESKTOP SIDEBAR */}
-      <aside className="hidden lg:flex flex-col w-72 bg-slate-900 border-r border-slate-800/60 shrink-0 no-print">
+      <aside className="hidden lg:flex flex-col w-72 bg-slate-900/40 backdrop-blur-xl border-r border-slate-800/45 shrink-0 no-print">
         {/* Sidebar Header / Brand profile */}
         <div className="p-6 border-b border-slate-850 flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-blue-600/10 border border-blue-500/20 flex items-center justify-center overflow-hidden shrink-0">
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-600/15 to-indigo-600/5 border border-blue-500/30 shadow-md shadow-blue-500/5 flex items-center justify-center overflow-hidden shrink-0">
             {businessSettings.business_logo ? (
               <img src={businessSettings.business_logo} alt="Brand logo" className="w-full h-full object-contain" />
             ) : (
@@ -275,17 +294,17 @@ export default function App() {
             )}
           </div>
           <div className="truncate">
-            <h1 className="text-sm font-extrabold text-white tracking-wide truncate">
-              {businessSettings.business_name || 'Kisan Mitra'}
+            <h1 className="text-sm font-extrabold text-white tracking-wide truncate font-display">
+              {businessSettings.business_name || DEFAULT_BUSINESS_SETTINGS.business_name}
             </h1>
-            <p className="text-[10px] text-slate-500 font-semibold truncate">
+            <p className="text-[10px] text-slate-500 font-bold truncate">
               {businessSettings.owner_name ? `Prop: ${businessSettings.owner_name}` : 'Mandi commission agent'}
             </p>
           </div>
         </div>
 
         {/* Sidebar Nav links */}
-        <nav className="flex-grow p-4 space-y-1 overflow-y-auto">
+        <nav className="flex-grow p-4 space-y-1.5 overflow-y-auto">
           {menuItems.map(item => {
             const Icon = item.icon;
             const isActive = activeTab === item.id;
@@ -293,14 +312,14 @@ export default function App() {
               <button
                 key={item.id}
                 onClick={() => handleNavigate(item.id)}
-                className={`w-full flex items-center justify-between px-4 py-3 rounded-xl text-xs font-bold transition duration-150 cursor-pointer ${
+                className={`w-full flex items-center justify-between px-4 py-3 rounded-xl text-xs font-bold transition-all duration-200 cursor-pointer hover-lift ${
                   isActive 
-                    ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/10' 
-                    : 'text-slate-400 hover:text-slate-200 hover:bg-slate-850/40'
+                    ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg shadow-blue-500/15 border-l-4 border-blue-400' 
+                    : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/20'
                 }`}
               >
                 <div className="flex items-center gap-3">
-                  <Icon className={`w-4.5 h-4.5 ${isActive ? 'text-white' : 'text-slate-500'}`} />
+                  <Icon className={`w-4.5 h-4.5 transition duration-150 ${isActive ? 'text-white' : 'text-slate-500'}`} />
                   <span>{item.label}</span>
                 </div>
                 {item.highlight && (
@@ -312,22 +331,35 @@ export default function App() {
         </nav>
 
         {/* Sidebar Footer / Theme cycling */}
-        <div className="p-4 border-t border-slate-850 flex items-center justify-between bg-slate-900/60">
-          <span className="text-[10px] text-slate-500 uppercase tracking-widest font-extrabold">Active Theme</span>
-          <button
-            onClick={toggleTheme}
-            className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-950 border border-slate-800 rounded-xl hover:border-slate-700 text-xs font-bold text-slate-350 cursor-pointer transition"
-          >
-            {theme === 'dark' && <Moon className="w-3.5 h-3.5 text-blue-400" />}
-            {theme === 'light' && <Sun className="w-3.5 h-3.5 text-amber-500" />}
-            {theme === 'bazaar' && <Sparkles className="w-3.5 h-3.5 text-emerald-400" />}
-            <span className="capitalize">{theme}</span>
-          </button>
+        <div className="p-4 border-t border-slate-850 flex items-center justify-between bg-slate-900/30">
+          <span className="text-[10px] text-slate-500 uppercase tracking-widest font-extrabold font-display">Theme</span>
+          
+          <div className="flex bg-slate-950 p-1 border border-slate-800/80 rounded-2xl gap-1 shrink-0 w-[145px]">
+            {(['dark', 'light', 'bazaar'] as const).map(t => {
+              const isActive = theme === t;
+              return (
+                <button
+                  key={t}
+                  onClick={() => setTheme(t)}
+                  className={`flex-1 py-1 rounded-xl flex items-center justify-center transition-all cursor-pointer ${
+                    isActive 
+                      ? 'bg-blue-600 text-white shadow-md' 
+                      : 'text-slate-500 hover:text-slate-300'
+                  }`}
+                  title={`${t.toUpperCase()} Theme`}
+                >
+                  {t === 'dark' && <Moon className="w-3.5 h-3.5" />}
+                  {t === 'light' && <Sun className="w-3.5 h-3.5" />}
+                  {t === 'bazaar' && <Sparkles className="w-3.5 h-3.5" />}
+                </button>
+              );
+            })}
+          </div>
         </div>
       </aside>
 
       {/* 2. MOBILE BOTTOM NAVIGATION */}
-      <nav className="lg:hidden fixed bottom-0 left-0 right-0 bg-slate-900/90 backdrop-blur-md border-t border-slate-800/60 flex items-center justify-around z-45 no-print px-1 select-none pt-1 pb-[env(safe-area-inset-bottom)] min-h-[56px] box-content">
+      <nav className="lg:hidden fixed bottom-0 left-0 right-0 bg-slate-900/85 backdrop-blur-lg border-t border-slate-800/50 flex items-center justify-around z-45 no-print px-1 select-none pt-1 pb-[env(safe-area-inset-bottom)] min-h-[56px] box-content">
         <button
           onClick={() => handleNavigate('dashboard')}
           className={`flex flex-col items-center justify-center flex-1 py-1 cursor-pointer transition-colors ${
@@ -335,7 +367,7 @@ export default function App() {
           }`}
         >
           <LayoutDashboard className="w-5 h-5 mb-0.5" />
-          <span className="text-[10px]">Home</span>
+          <span className="text-[10px] font-bold">Home</span>
         </button>
 
         <button
@@ -345,21 +377,24 @@ export default function App() {
           }`}
         >
           <Users className="w-5 h-5 mb-0.5" />
-          <span className="text-[10px]">Parties</span>
+          <span className="text-[10px] font-bold">Parties</span>
         </button>
 
         {/* Center Prominent New Lot Action Button */}
-        <div className="flex-1 flex justify-center py-1">
+        <div className="flex-1 flex justify-center py-1 relative">
+          {hasDraft && (
+            <span className="absolute -top-3 w-12 h-12 rounded-full bg-amber-500/10 animate-ping duration-1000 pointer-events-none" />
+          )}
           <button
             onClick={() => handleNavigate('new_lot')}
-            className={`flex items-center justify-center w-11 h-11 bg-gradient-to-tr from-blue-600 to-blue-700 text-white rounded-full -translate-y-2.5 shadow-lg shadow-blue-500/20 border-4 border-slate-950 active:scale-95 transition-all cursor-pointer relative ${
-              getMobileActiveTab() === 'new_lot' ? 'from-blue-500 to-blue-600' : ''
+            className={`flex items-center justify-center w-12 h-12 bg-gradient-to-tr from-blue-600 to-indigo-600 text-white rounded-full -translate-y-3 shadow-lg shadow-blue-500/25 border-4 border-slate-950 active:scale-90 hover:scale-105 transition-all cursor-pointer relative z-10 ${
+              getMobileActiveTab() === 'new_lot' ? 'from-blue-500 to-indigo-500' : ''
             }`}
             title="Create New Lot"
           >
-            <PlusCircle className="w-5.5 h-5.5" />
+            <PlusCircle className="w-6 h-6" />
             {hasDraft && (
-              <span className="absolute top-0.5 right-0.5 w-3 h-3 rounded-full bg-amber-500 border border-slate-950 animate-pulse" />
+              <span className="absolute top-0 right-0 w-3 h-3 rounded-full bg-amber-500 border-2 border-slate-950 animate-pulse" />
             )}
           </button>
         </div>
@@ -371,7 +406,7 @@ export default function App() {
           }`}
         >
           <Receipt className="w-5 h-5 mb-0.5" />
-          <span className="text-[10px]">Finance</span>
+          <span className="text-[10px] font-bold">Finance</span>
         </button>
 
         <button
@@ -381,7 +416,7 @@ export default function App() {
           }`}
         >
           <Menu className="w-5 h-5 mb-0.5" />
-          <span className="text-[10px]">More</span>
+          <span className="text-[10px] font-bold">More</span>
         </button>
       </nav>
 
@@ -389,9 +424,9 @@ export default function App() {
       <div className="flex-1 flex flex-col overflow-hidden min-w-0 pb-[calc(4rem+env(safe-area-inset-bottom))] lg:pb-0">
         
         {/* Mobile header ribbon */}
-        <header className="lg:hidden bg-slate-900 border-b border-slate-850 h-12 flex items-center justify-between px-3 shrink-0 no-print">
+        <header className="lg:hidden bg-slate-900/85 backdrop-blur-md border-b border-slate-800/50 h-12 flex items-center justify-between px-3 shrink-0 no-print">
           <div className="flex items-center gap-2">
-            <div className="w-7 h-7 rounded-md bg-blue-600/10 border border-blue-500/20 flex items-center justify-center overflow-hidden shrink-0">
+            <div className="w-7 h-7 rounded-lg bg-gradient-to-tr from-blue-600/15 to-indigo-600/5 border border-blue-500/20 flex items-center justify-center overflow-hidden shrink-0">
               {businessSettings.business_logo ? (
                 <img src={businessSettings.business_logo} alt="Brand logo" className="w-full h-full object-contain" />
               ) : (
@@ -399,30 +434,42 @@ export default function App() {
               )}
             </div>
             <h1 className="text-sm font-extrabold text-white font-display">
-              {businessSettings.business_name || 'Kisan Mitra'}
+              {businessSettings.business_name || DEFAULT_BUSINESS_SETTINGS.business_name}
             </h1>
           </div>
 
           <div className="flex items-center gap-2">
-            <button
-              onClick={toggleTheme}
-              className="p-1.5 bg-slate-950 border border-slate-800 rounded-xl text-slate-400 cursor-pointer"
-            >
-              {theme === 'dark' && <Moon className="w-4.5 h-4.5 text-blue-400" />}
-              {theme === 'light' && <Sun className="w-4.5 h-4.5 text-amber-500" />}
-              {theme === 'bazaar' && <Sparkles className="w-4.5 h-4.5 text-emerald-400" />}
-            </button>
+            <div className="flex bg-slate-950 p-0.5 border border-slate-800 rounded-xl gap-0.5">
+              {(['dark', 'light', 'bazaar'] as const).map(t => {
+                const isActive = theme === t;
+                return (
+                  <button
+                    key={t}
+                    onClick={() => setTheme(t)}
+                    className={`p-1 rounded-lg flex items-center justify-center transition-all cursor-pointer ${
+                      isActive 
+                        ? 'bg-blue-600 text-white' 
+                        : 'text-slate-500'
+                    }`}
+                  >
+                    {t === 'dark' && <Moon className="w-3.5 h-3.5" />}
+                    {t === 'light' && <Sun className="w-3.5 h-3.5" />}
+                    {t === 'bazaar' && <Sparkles className="w-3.5 h-3.5" />}
+                  </button>
+                );
+              })}
+            </div>
           </div>
         </header>
 
         {/* Mobile top navigation tabs for Finance section */}
         {['lots', 'khata', 'cashbook'].includes(activeTab) && (
-          <div className="lg:hidden bg-slate-900 border-b border-slate-850 px-4 py-2 flex gap-1.5 shrink-0 no-print select-none">
+          <div className="lg:hidden bg-slate-900/85 backdrop-blur-md border-b border-slate-800/50 px-4 py-2 flex gap-1.5 shrink-0 no-print select-none">
             <button
               onClick={() => handleNavigate('lots')}
               className={`flex-1 py-1.5 text-center rounded-xl text-xs font-bold transition-all border cursor-pointer ${
                 activeTab === 'lots'
-                  ? 'bg-blue-600/10 text-blue-400 border-blue-500/35 font-extrabold'
+                  ? 'bg-blue-600/10 text-blue-450 border-blue-500/35 font-extrabold shadow-sm'
                   : 'text-slate-400 bg-transparent border-transparent'
               }`}
             >
@@ -432,7 +479,7 @@ export default function App() {
               onClick={() => handleNavigate('khata')}
               className={`flex-1 py-1.5 text-center rounded-xl text-xs font-bold transition-all border cursor-pointer ${
                 activeTab === 'khata'
-                  ? 'bg-blue-600/10 text-blue-400 border-blue-500/35 font-extrabold'
+                  ? 'bg-blue-600/10 text-blue-450 border-blue-500/35 font-extrabold shadow-sm'
                   : 'text-slate-400 bg-transparent border-transparent'
               }`}
             >
@@ -442,7 +489,7 @@ export default function App() {
               onClick={() => handleNavigate('cashbook')}
               className={`flex-1 py-1.5 text-center rounded-xl text-xs font-bold transition-all border cursor-pointer ${
                 activeTab === 'cashbook'
-                  ? 'bg-blue-600/10 text-blue-400 border-blue-500/35 font-extrabold'
+                  ? 'bg-blue-600/10 text-blue-450 border-blue-500/35 font-extrabold shadow-sm'
                   : 'text-slate-400 bg-transparent border-transparent'
               }`}
             >
@@ -453,7 +500,7 @@ export default function App() {
 
         {/* Global Draft lot notification banner */}
         {hasDraft && activeTab !== 'new_lot' && (
-          <div className="no-print bg-amber-500/10 border-b border-amber-500/25 px-6 py-2.5 flex items-center justify-between text-xs text-amber-400 shrink-0">
+          <div className="no-print bg-amber-500/10 border-b border-amber-500/25 px-6 py-2.5 flex items-center justify-between text-xs text-amber-400 shrink-0 animate-pulse-slow">
             <div className="flex items-center gap-2">
               <AlertTriangle className="w-4.5 h-4.5 shrink-0 text-amber-500" />
               <span>
@@ -463,13 +510,13 @@ export default function App() {
             <div className="flex items-center gap-3">
               <button
                 onClick={() => handleNavigate('new_lot')}
-                className="px-3 py-1 bg-amber-600 hover:bg-amber-500 text-white rounded-lg font-bold cursor-pointer transition text-[11px]"
+                className="px-3 py-1 bg-amber-600 hover:bg-amber-500 text-white rounded-lg font-bold cursor-pointer transition text-[11px] hover-lift"
               >
                 Resume Draft
               </button>
               <button
                 onClick={handleClearDraft}
-                className="text-slate-400 hover:text-rose-400 transition font-bold cursor-pointer"
+                className="text-slate-400 hover:text-rose-450 transition font-bold cursor-pointer"
               >
                 Discard
               </button>

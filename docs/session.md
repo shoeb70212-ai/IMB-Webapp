@@ -1,4 +1,4 @@
-# Active Session: Kisan Mitra PWA Migration
+# Active Session: IMB Fruit Agency — PWA Enhancements
 
 This document outlines the goals, active tasks, and completion logs for the current development session.
 
@@ -7,38 +7,47 @@ This document outlines the goals, active tasks, and completion logs for the curr
 ## Progress Indicator
 
 - **Status**: 100% Completed
-- **Last Updated**: 2026-05-21T15:34:18.068Z
-- **Completed Tasks**: 8 of 8
+- **Last Updated**: 2026-05-21T16:31:00.000Z
+- **Completed Tasks**: 13 of 13
 - **In Progress Tasks**: 0
 
 ## Session Goals
 
-1. **Documentation Setup**:
-   - Create `claude.md` (Project overview & schema details).
-   - Create `agent.md` (Coding standards & safety constraints).
-   - Create `session.md` (Current work log & checklist).
-   - Create `handoff.md` (Transition notes).
-   - Setup a script hook to easily update the documentation metadata.
-2. **Complete Remaining Panels**:
-   - Build `LabourWages.tsx` (Crew directories, work credit cards, payouts, cascading cashbook sync).
-   - Build `Settings.tsx` (Business configuration forms, lists editor, JSON file backups).
-3. **Assemble Main Application Shell**:
-   - Implement `App.tsx` layout structure (sidebar tabs, notification toasts, theme syncing).
-   - Wire up `main.tsx` to handle async DB initialize sequences.
-4. **Compile & Verify**:
-   - Build packages locally (`npm run build`) to guarantee strict typing and bundle completeness.
-5. **Mobile Thermal Print Bug Fix**:
-   - Resolve Chrome on Android and iOS print preview race conditions using delayed cleanup.
+1. **Centralized Business Branding**:
+   - Update business name to `IMB Fruit Agency`, owner to `Syed. Najeeb`, phone `94221 83481`, address `Shop No. 39, Market Yard, Camp Road, Malegaon, District Nashik, Maharashtra, India`.
+   - Save logo to `/public/logo.png`.
+   - Add `DEFAULT_BUSINESS_SETTINGS` constant in `src/db.ts` for single-point edits.
+   - Propagate fallbacks across all components.
+
+2. **IndexedDB Initialization Race Fix**:
+   - Fix `ConstraintError` caused by React StrictMode double-mounting `Main` and calling `initializeDatabase()` twice simultaneously.
+   - Introduce module-level `initPromise` cache so the second call reuses the first call's in-flight promise.
+
+3. **Print Document Border**:
+   - Add professional letterhead-style double-rule border to all print documents.
+   - Implement `.print-border-frame` CSS class (protected from browser print stripping with `!important`).
+   - Apply to: Lot Seller Memo, Lot Buyer Invoice, Thermal Receipt (80mm), Khata Ledger, Cashbook, Labour Pay Statement.
+
+4. **Page Size Selector**:
+   - Add `PrintPageSize` type (`a4` | `a5` | `letter` | `receipt`) to `printing.ts`.
+   - Add `getPageCss()` utility for correct `@page` CSS per size.
+   - Add page size dropdown in Lots detail view (A4, A5, Letter).
+   - Thermal 80mm always forces `receipt` mode regardless of dropdown.
 
 ---
 
 ## Checklist
 
-- [x] Create project documentation files (`claude.md`, `agent.md`, `session.md`, `handoff.md`)
-- [x] Create documentation update script hook (`update-docs.js`)
-- [x] Create LabourWages.tsx
-- [x] Create Settings.tsx
-- [x] Implement layout shell in `App.tsx`
-- [x] Implement boot mount in `main.tsx`
-- [x] Run diagnostic lint and compilation builds
-- [x] Resolve mobile browser thermal print preview race conditions with asynchronous focus-aware cleanup
+- [x] Save `/public/logo.png`
+- [x] Add `DEFAULT_BUSINESS_SETTINGS` to `src/db.ts`
+- [x] Update `SystemSettings` interface in `src/types.ts` with `business_logo` field
+- [x] Propagate branding fallbacks to `App.tsx`, `Lots.tsx`, `KhataLedger.tsx`, `Cashbook.tsx`, `LabourWages.tsx`, `Settings.tsx`, `NewLotWizard.tsx`
+- [x] Fix IndexedDB StrictMode double-init race with module-level `initPromise` in `src/db.ts`
+- [x] Export `PrintPageSize` type and `getPageCss()` from `src/printing.ts`
+- [x] Add page size dropdown UI in `Lots.tsx` detail view
+- [x] Add `.print-border-frame` CSS class in `src/index.css`
+- [x] Remove `border: none !important` overrides that were stripping print borders
+- [x] Apply `print-border-frame` to Lots A4 Seller Memo HTML
+- [x] Apply `print-border-frame` to Lots A4 Buyer Invoice HTML
+- [x] Apply `print-border-frame` to Lots 80mm Thermal Receipt HTML
+- [x] Apply `print-border-frame` to KhataLedger, Cashbook, LabourWages print HTML

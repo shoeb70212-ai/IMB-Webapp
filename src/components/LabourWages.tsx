@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
-import { db, generateId } from '../db';
+import { db, generateId, DEFAULT_BUSINESS_SETTINGS } from '../db';
 import { LabourWorker, LabourTx, PaymentMode } from '../types';
 import { 
   Plus, Search, Check, X, ShieldAlert, Trash2, Edit2, 
@@ -377,17 +377,17 @@ export default function LabourWages() {
     const settings = JSON.parse(localStorage.getItem('ca_settings') || '{}');
 
     const printHtml = `
-      <div class="print-container">
+      <div class="print-container print-border-frame" style="padding: 20px 24px; position: relative;">
         <!-- Top section: Two-column layout -->
         <div style="display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 2px solid #1e293b; padding-bottom: 15px; margin-bottom: 20px;">
           <!-- Left column: Company info -->
           <div style="display: flex; align-items: center; gap: 15px;">
             ${settings.business_logo ? `<img src="${settings.business_logo}" style="max-height: 70px; max-width: 120px; object-fit: contain;" />` : ''}
             <div>
-              <h1 style="margin: 0; font-family: 'Outfit', sans-serif; font-size: 22px; font-weight: 800; color: #0f172a; text-transform: uppercase; letter-spacing: -0.5px;">${settings.business_name || 'Kisan Trading Co.'}</h1>
-              <p style="margin: 4px 0 2px 0; font-size: 13px; color: #475569; font-weight: 500;">Prop: ${settings.owner_name || 'Mandi Agent'}</p>
-              <p style="margin: 2px 0; font-size: 12px; color: #64748b;">${settings.address || 'Mandi Yard'}</p>
-              <p style="margin: 2px 0; font-size: 12px; color: #64748b;"><strong>Phone:</strong> ${settings.phone || ''}</p>
+              <h1 style="margin: 0; font-family: 'Outfit', sans-serif; font-size: 22px; font-weight: 800; color: #0f172a; text-transform: uppercase; letter-spacing: -0.5px;">${settings.business_name || DEFAULT_BUSINESS_SETTINGS.business_name}</h1>
+              <p style="margin: 4px 0 2px 0; font-size: 13px; color: #475569; font-weight: 500;">Prop: ${settings.owner_name || DEFAULT_BUSINESS_SETTINGS.owner_name}</p>
+              <p style="margin: 2px 0; font-size: 12px; color: #64748b;">${settings.address || DEFAULT_BUSINESS_SETTINGS.address}</p>
+              <p style="margin: 2px 0; font-size: 12px; color: #64748b;"><strong>Phone:</strong> ${settings.phone || DEFAULT_BUSINESS_SETTINGS.phone}</p>
             </div>
           </div>
           <!-- Right column: Document details card -->

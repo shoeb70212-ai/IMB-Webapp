@@ -1,6 +1,6 @@
-# Kisan Mitra - Mandi Services, Commission Agent & Labour Wages Management System
+# IMB Fruit Agency — Mandi Commission Agent & Labour Wages Management System
 
-**Kisan Mitra** (Farmer's Friend) is an offline-first, exceptionally polished, high-performance web enterprise application engineered specifically for Commission Agents (*Adhatiyas*) operating in wholesale vegetable, grain, and fruit markets (*Mandis*).
+**IMB Fruit Agency** (Prop: Syed. Najeeb) is an offline-first, exceptionally polished, high-performance Progressive Web App (PWA) engineered specifically for Commission Agents (*Adhatiyas*) operating in wholesale vegetable, grain, and fruit markets (*Mandis*).
 
 This application digitizes the core financial, transactional, inventory, and labor-payout operations, completely replacing physical, error-prone bahi-khatas with a highly responsive, fluid, and robust local ledger.
 
@@ -81,45 +81,61 @@ Designed to handle local labor dynamics, this module supports granular tracking 
 
 ## 🏗️ Technical Architecture & Technology Stack
 
-Kisan Mitra is engineered with a **client-first, local-persistence, non-blocking** runtime environment to ensure maximum reliability inside busy local wholesale markets.
+IMB Fruit Agency is engineered with a **client-first, local-persistence, non-blocking** runtime environment to ensure maximum reliability inside busy local wholesale markets.
 
 ```
        ┌────────────────────────────────────────────────────────┐
-       │                Kisan Mitra Client (DOM)                │
+       │            IMB Fruit Agency Client (React PWA)         │
        └─────────────────────────┬──────────────────────────────┘
                                  │
-                   [Reactive Alpine.js Bindings]
+                   [Dexie.js LiveQuery Reactive Hooks]
                                  │
                                  ▼
        ┌────────────────────────────────────────────────────────┐
-       │             Central Alpine.js State Engine             │
+       │         Browser IndexedDB (Dexie.js ORM Layer)         │
        ├────────────────────────────────────────────────────────┤
-       │ • parties[]   • lots[]   • crates[]     • charges[]     │
-       │ • cashbook[]  • settings • labourList[] • transactions[]│
+       │ parties  lots  crates  charges  khata  cashbook        │
+       │ labourList  labourTransactions                         │
        └─────────────────────────┬──────────────────────────────┘
                                  │
-                        [Sync Hook on Save]
+                    [dbSync.ts Relational Triggers]
                                  │
                                  ▼
        ┌────────────────────────────────────────────────────────┐
-       │          JSON-Serialized Browser LocalStorage          │
+       │  localStorage — Business Settings (ca_settings)       │
+       │  DEFAULT_BUSINESS_SETTINGS in src/db.ts (fallback)    │
        └────────────────────────────────────────────────────────┘
 ```
 
-### 1. Alpine.js (State Optimization & Reactivity)
-The logic operates using a declarative UI framework. All operations are kept synchronous within browser memory:
-* `parties`, `lots`, `crates`, `charges`, `khata`, `cashbook`, `labourList`, `labourTransactions` represent the operational dataset.
-* Computeds and filtered views (like `getDisplayRows()`, `getFilteredLabourList()`, and `getLabourTransactions()`) run on-the-fly to guarantee 0ms interface lag.
+### 1. React 18 + Vite + TypeScript
+- Reactive UI with `useLiveQuery` from `dexie-react-hooks` for zero-lag real-time data binding.
+- Strict TypeScript types for all data models in `src/types.ts`.
+- PWA via `vite-plugin-pwa` with offline Service Worker caching.
 
-### 2. Tailwind CSS & Print Invoicing Frame
-* **Primary Theme:** Modern, eye-safe slate theme combining dark graphite elements (`bg-slate-950`) with elegant high-contrast blue (`text-blue-400`) and emerald highlights.
-* **Dual-Format Printing Engine:** Relies on tailored print media css rules (`@media print`):
-  * **Seller Copy (Wide Standard A4):** Hides application sidebars, navigations, action items, toggles, and filters. Renders full-width balance tables, itemized lot breakdowns, and detailed agent commissions.
-  * **Buyer Slip (Fluid Thermal Receipt):** Auto-reconfigures columns on thin 80mm thermal rolls, drops background fills to preserve ink, and prints compact sale records for instant customer Handouts.
+### 2. Dexie.js (IndexedDB ORM)
+- Versioned schema migrations (`version(1)` → `version(2)`).
+- Transactional `bulkAdd` for seed data seeding.
+- Module-level `initPromise` prevents React StrictMode double-init race conditions.
 
-### 3. Local-First Seed & Recovery Engine
-* Seeding logic uses `seedData()` to populate empty databases on first-time load, allowing immediate exploration of the software without manually completing configuration wizards.
-* Safety backups use deep-nested local state caching to store active drafts (`ca_draft_nl`), ensuring that physical computer crashes, browser refreshes, or navigation misclicks do NOT lose complex multi-crate data.
+### 3. Centralized Business Branding (`src/db.ts`)
+```ts
+export const DEFAULT_BUSINESS_SETTINGS: SystemSettings = {
+  business_name: "IMB Fruit Agency",
+  owner_name:    "Syed. Najeeb",
+  phone:         "94221 83481",
+  address:       "Shop No. 39, Market Yard, Camp Road, Malegaon, District Nashik, Maharashtra, India",
+  business_logo: "/logo.png",
+  // ...
+};
+```
+Edit this constant once to rebrand across all print documents and UI headers.
+
+### 4. Multi-Format Print Engine (`src/printing.ts`)
+- **Page Sizes**: A4, A5, Letter, 80mm Thermal — selectable per print job.
+- **Document Border**: `.print-border-frame` CSS class adds a professional double-rule letterhead border to all print documents, immune to browser print stripping.
+- **Desktop**: Hidden iframe for flicker-free printing.
+- **Mobile (iOS/Android)**: Direct DOM injection with delayed focus-aware cleanup.
+- **ESC/POS**: Binary command encoder for direct Bluetooth/USB thermal printer integration.
 
 ---
 
@@ -252,13 +268,34 @@ Start the Node.js hot-reloaded development environment:
 ```bash
 npm run dev
 ```
-Open [http://localhost:3000](http://localhost:3000) in your web browser.
+Open [http://localhost:5173](http://localhost:5173) in your web browser.
 
-### 2. Standalone Portability
-Since Kisan Mitra is built as an inline monolithic SPA, you do not need active cloud network servers to run this in production. You can simply file-transfer the compiled `index.html` file into any local computer or tablet:
-* Open `index.html` inside Google Chrome or Microsoft Edge.
-* Bookmark the tab. All entries, calculations, and tables populate and autosave inside the browser's persistent sandbox disk automatically.
+### 2. Production Build
+```bash
+npm run build
+```
+Serve the `dist/` folder on any static host or open `dist/index.html` locally in Chrome/Edge.
 
-### 3. Performance Printing Tips
-* For thermal operations, connect your 80mm/3-inch receipt printers to your local terminal.
-* Under Chrome/Edge print options, ALWAYS enable/tick **"Background Graphics"** inside the settings slider and configure margins to **"None"** to ensure the beautiful slate highlights, badge colors, and line spacers display flawlessly on paper.
+### 3. Branding Customization
+To rebrand the app for a different business, edit a **single constant** in `src/db.ts`:
+```ts
+export const DEFAULT_BUSINESS_SETTINGS = {
+  business_name: "Your Business Name",
+  owner_name:    "Owner Name",
+  phone:         "Phone Number",
+  address:       "Full Address",
+  business_logo: "/logo.png",  // place your logo in /public/logo.png
+};
+```
+
+### 4. Performance Printing Tips
+* Use the **page size dropdown** in the Lot detail view to select A4, A5, or Letter before printing.
+* For thermal operations, click **Thermal 80mm** — it always uses 80mm page size regardless of the dropdown.
+* Under Chrome/Edge print options, enable **"Background Graphics"** to ensure table header backgrounds and badge colors print correctly.
+* All documents include a professional **double-rule border frame** automatically.
+
+### 5. Business Details (Shop Info)
+- **Name**: IMB Fruit Agency
+- **Proprietor**: Syed. Najeeb
+- **Phone**: 94221 83481
+- **Address**: Shop No. 39, Market Yard, Camp Road, Malegaon, District Nashik, Maharashtra, India
