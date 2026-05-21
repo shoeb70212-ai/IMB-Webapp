@@ -1,7 +1,6 @@
 # Session Handoff Notes: Kisan Mitra Migration
 
-*Last documented state update: 2026-05-21T13:40:03.901Z | Progress: 100%*
-
+*Last documented state update: 2026-05-21T13:43:05.539Z | Progress: 100%*
 
 This document lists details to help resume execution, summarizing completed integrations, code status, and the immediate development queue.
 
@@ -16,7 +15,20 @@ This document lists details to help resume execution, summarizing completed inte
 
 ---
 
-## 2. Next Action Items
+## 2. Recent Key Technical Resolutions
+
+### Mobile Browser Print Race Condition Resolution
+- **Issue**: Chrome on Android and Safari on iOS would print the entire visual web interface (with checkboxes/buttons) and create blank pages when users attempted to print receipts.
+- **Root Cause**: Mobile browsers trigger the standard `afterprint` event instantly when launching the native sharing/print sheet (unlike desktop browsers which trigger it after closing the dialog). The instant trigger tore down the printed DOM element (`#print-mount-point`) and stripped print-mode body classes before the browser's PDF engine could capture and render the layout.
+- **Resolution**:
+  - Re-engineered `printViaMobileDom()` in `src/printing.ts` to utilize a delayed, focus-aware cleanup strategy.
+  - Listeners on `afterprint` trigger a 3-second delay, and `focus` (firing when the user returns to the app from the print sheet) triggers a 1-second delay.
+  - Added an absolute 10-second failsafe timer to prevent memory leaks.
+  - Updated `@media print` rules in `src/index.css` to use the robust `body.is-printing > *:not(#print-mount-point) { display: none !important; }` selector, ensuring compiler safety.
+
+---
+
+## 3. Next Action Items
 
 1. **User Acceptance Testing (UAT)**:
    - Perform end-to-end testing of data entry (Lots, Khata, Cashbook, Labour).
