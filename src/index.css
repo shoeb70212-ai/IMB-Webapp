@@ -1,0 +1,460 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Outfit", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+
+  --color-slate-50: rgb(var(--c-slate-50));
+  --color-slate-100: rgb(var(--c-slate-100));
+  --color-slate-200: rgb(var(--c-slate-200));
+  --color-slate-300: rgb(var(--c-slate-300));
+  --color-slate-400: rgb(var(--c-slate-400));
+  --color-slate-500: rgb(var(--c-slate-500));
+  --color-slate-600: rgb(var(--c-slate-600));
+  --color-slate-700: rgb(var(--c-slate-700));
+  --color-slate-800: rgb(var(--c-slate-800));
+  --color-slate-900: rgb(var(--c-slate-900));
+  --color-slate-950: rgb(var(--c-slate-950));
+
+  --color-blue-400: rgb(var(--c-blue-400));
+  --color-blue-500: rgb(var(--c-blue-500));
+  --color-blue-600: rgb(var(--c-blue-600));
+  --color-blue-700: rgb(var(--c-blue-700));
+
+  --color-emerald-400: rgb(var(--c-emerald-400));
+  --color-emerald-500: rgb(var(--c-emerald-500));
+  --color-emerald-600: rgb(var(--c-emerald-600));
+  --color-emerald-700: rgb(var(--c-emerald-700));
+
+  --color-rose-400: rgb(var(--c-rose-400));
+  --color-rose-500: rgb(var(--c-rose-500));
+  --color-rose-600: rgb(var(--c-rose-600));
+  --color-rose-900: rgb(var(--c-rose-900));
+}
+
+/* Custom font styles for Headings */
+h1, h2, h3, h4, .font-display {
+  font-family: var(--font-display) !important;
+}
+
+/* Theme definitions matching the original project custom palettes */
+:root, [data-theme="dark"] {
+  /* Pitch Black dark theme */
+  --c-slate-50: 250 250 250;
+  --c-slate-100: 245 245 245;
+  --c-slate-200: 235 235 235;
+  --c-slate-300: 212 212 212;
+  --c-slate-400: 175 175 175;
+  --c-slate-500: 135 135 135;
+  --c-slate-600: 82 82 82;
+  --c-slate-700: 45 45 45;
+  --c-slate-800: 28 28 28;
+  --c-slate-900: 15 15 15;
+  --c-slate-950: 6 6 6;
+
+  /* Glowing Azure Blue primary accent */
+  --c-blue-400: 56 189 248;
+  --c-blue-500: 14 165 233;
+  --c-blue-600: 2 132 199;
+  --c-blue-700: 3 105 161;
+
+  /* Acid Lime/Green */
+  --c-emerald-400: 163 230 53;
+  --c-emerald-500: 132 204 22;
+  --c-emerald-600: 101 163 13;
+  --c-emerald-700: 77 124 15;
+
+  /* Bright Rose */
+  --c-rose-400: 251 113 133;
+  --c-rose-500: 244 63 94;
+  --c-rose-600: 225 29 72;
+  --c-rose-900: 136 19 55;
+  color-scheme: dark;
+}
+
+[data-theme="light"] {
+  /* Warm Latte Cream Light Theme */
+  --c-slate-50: 0 0 0;
+  --c-slate-100: 20 18 16;
+  --c-slate-200: 36 33 30;
+  --c-slate-300: 59 55 51;
+  --c-slate-400: 84 80 73;
+  --c-slate-500: 115 110 101;
+  --c-slate-600: 163 158 149;
+  --c-slate-700: 219 214 206;
+  --c-slate-800: 232 228 221;
+  --c-slate-900: 255 255 255;
+  --c-slate-950: 249 246 240;
+
+  /* Sage Green primary accent */
+  --c-blue-400: 74 158 103;
+  --c-blue-500: 45 128 73;
+  --c-blue-600: 27 101 49;
+  --c-blue-700: 18 77 34;
+
+  --c-emerald-400: 16 185 129;
+  --c-emerald-500: 5 150 105;
+  --c-emerald-600: 4 120 87;
+  --c-emerald-700: 6 78 59;
+
+  --c-rose-400: 244 63 94;
+  --c-rose-500: 225 29 72;
+  --c-rose-600: 159 18 57;
+  --c-rose-900: 136 19 55;
+  color-scheme: light;
+}
+
+[data-theme="bazaar"] {
+  /* Warm Charcoal Bazaar Theme */
+  --c-slate-50: 255 255 255;
+  --c-slate-100: 250 250 250;
+  --c-slate-200: 244 244 245;
+  --c-slate-300: 228 228 231;
+  --c-slate-400: 212 212 216;
+  --c-slate-500: 161 161 170;
+  --c-slate-600: 113 113 122;
+  --c-slate-700: 82 82 91;
+  --c-slate-800: 63 63 70;
+  --c-slate-900: 39 39 42;
+  --c-slate-950: 24 24 27;
+
+  /* Deep Orange primary accent */
+  --c-blue-400: 251 146 60;
+  --c-blue-500: 249 115 22;
+  --c-blue-600: 234 88 12;
+  --c-blue-700: 194 65 12;
+
+  --c-emerald-400: 163 230 53;
+  --c-emerald-500: 132 204 22;
+  --c-emerald-600: 101 163 13;
+  --c-emerald-700: 77 124 15;
+
+  --c-rose-400: 251 113 133;
+  --c-rose-500: 244 63 94;
+  --c-rose-600: 225 29 72;
+  --c-rose-900: 136 19 55;
+  color-scheme: dark;
+}
+
+/* Smooth Transitions for Theme Toggles */
+body, main, aside, header, div, span, button, input, select, table, th, td {
+  transition-property: background-color, border-color, color;
+  transition-duration: 250ms;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Custom Scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgb(var(--c-slate-700));
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgb(var(--c-slate-600));
+}
+
+/* Hide content with x-cloak equivalent in React (usually handled by rendering, but kept for styling) */
+.cloak {
+  display: none !important;
+}
+
+/* Custom Animations */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideUp {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-slide-up {
+  animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Glassmorphism card utilities */
+.glass-panel {
+  background: rgba(var(--c-slate-900), 0.75) !important;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(var(--c-slate-800), 0.5);
+}
+
+.glass-header {
+  background: rgba(var(--c-slate-900), 0.6) !important;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(var(--c-slate-800), 0.5);
+}
+
+/* Premium Card hover styles */
+.interactive-card {
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.interactive-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(var(--c-blue-500), 0.35);
+  box-shadow: 0 12px 20px -10px rgba(var(--c-blue-500), 0.12);
+}
+.interactive-card-success:hover {
+  transform: translateY(-2px);
+  border-color: rgba(var(--c-emerald-500), 0.35);
+  box-shadow: 0 12px 20px -10px rgba(var(--c-emerald-500), 0.12);
+}
+.interactive-card-error:hover {
+  transform: translateY(-2px);
+  border-color: rgba(var(--c-rose-500), 0.35);
+  box-shadow: 0 12px 20px -10px rgba(var(--c-rose-500), 0.12);
+}
+
+/* Bottom sheets drawer for mobile viewports */
+@media (max-width: 1023px) {
+  .mobile-bottom-sheet {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 50;
+    border-top-left-radius: 1.75rem;
+    border-top-right-radius: 1.75rem;
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+    max-height: 85vh;
+    animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+}
+
+
+/* Print Overrides */
+@media print {
+  .no-print {
+    display: none !important;
+  }
+  .print-only {
+    display: block !important;
+  }
+  body {
+    margin: 0 !important;
+    padding: 0 !important;
+    background: white !important;
+    color: black !important;
+  }
+  .print-container {
+    width: 100% !important;
+    max-width: 100% !important;
+    box-shadow: none !important;
+    border: none !important;
+    background: white !important;
+    color: black !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  /* Receipt Printer Specific Layout */
+  body.print-receipt {
+    width: 80mm !important;
+  }
+  body.print-receipt .print-container {
+    max-width: 80mm !important;
+    margin: 0 !important;
+    font-size: 10px !important;
+    padding: 1mm !important;
+  }
+  body.print-receipt .print-container table {
+    font-size: 9px !important;
+    width: 100% !important;
+    border-collapse: collapse !important;
+  }
+  body.print-receipt .print-container th, 
+  body.print-receipt .print-container td {
+    padding: 2px 1px !important;
+  }
+  body.print-receipt .print-container * {
+    color: black !important;
+    border-color: #555 !important;
+  }
+  body.print-receipt .print-container img {
+    max-width: 40mm !important;
+    display: block !important;
+    margin: 0 auto 4px auto !important;
+  }
+
+  /* A4 Printer Specific Layout */
+  body.print-a4 .print-container {
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    font-size: 13px !important;
+    padding: 8mm !important;
+  }
+  body.print-a4 .print-container * {
+    color: black !important;
+    border-color: #ccc !important;
+  }
+
+  /* Shared printing utility classes */
+  .print-monospace {
+    font-family: 'JetBrains Mono', monospace !important;
+    font-variant-numeric: tabular-nums;
+  }
+  .print-table {
+    width: 100% !important;
+    border-collapse: collapse !important;
+  }
+  .print-table th {
+    background-color: #f3f4f6 !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    font-weight: 700 !important;
+    border-bottom: 2px solid #333 !important;
+  }
+  .print-table td, .print-table th {
+    padding: 8px 10px !important;
+    border-bottom: 1px solid #e5e7eb !important;
+  }
+  .print-signature-row {
+    margin-top: 50px !important;
+    display: flex !important;
+    justify-content: space-between !important;
+  }
+  .print-signature-box {
+    border-top: 1px solid #9ca3af !important;
+    width: 150px !important;
+    text-align: center !important;
+    padding-top: 6px !important;
+    font-size: 11px !important;
+    font-weight: 600 !important;
+  }
+}
+
+/* Light theme text-white visibility fixes */
+[data-theme="light"] .text-white {
+  color: rgb(var(--c-slate-100)) !important;
+}
+
+/* Restore literal white text for elements with dark primary/accent backgrounds */
+[data-theme="light"] button.text-white,
+[data-theme="light"] button .text-white,
+[data-theme="light"] a.text-white,
+[data-theme="light"] a .text-white,
+[data-theme="light"] .fixed.text-white,
+[data-theme="light"] .fixed .text-white,
+[data-theme="light"] [class*="bg-blue-"].text-white,
+[data-theme="light"] [class*="bg-blue-"] .text-white,
+[data-theme="light"] [class*="bg-emerald-"].text-white,
+[data-theme="light"] [class*="bg-emerald-"] .text-white,
+[data-theme="light"] [class*="bg-rose-"].text-white,
+[data-theme="light"] [class*="bg-rose-"] .text-white,
+[data-theme="light"] [class*="bg-red-"].text-white,
+[data-theme="light"] [class*="bg-red-"] .text-white,
+[data-theme="light"] [class*="from-blue-"].text-white,
+[data-theme="light"] [class*="from-blue-"] .text-white,
+[data-theme="light"] [class*="from-emerald-"].text-white,
+[data-theme="light"] [class*="from-emerald-"] .text-white,
+[data-theme="light"] [class*="from-rose-"].text-white,
+[data-theme="light"] [class*="from-rose-"] .text-white {
+  color: #ffffff !important;
+}
+
+/* ============================================================
+   PRINT STYLES — Mobile DOM injection + Desktop iframe compatible
+   ============================================================ */
+
+/* Page-break utility: separates seller copy from each buyer copy */
+.print-page-break {
+  page-break-before: always;
+  break-before: page;
+}
+
+/* Mount point is invisible on-screen by default */
+#print-mount-point {
+  display: none;
+}
+
+@media print {
+  html, body {
+    overflow: visible !important;
+    height: auto !important;
+    width: auto !important;
+    background: white !important;
+    color: black !important;
+  }
+
+  /* Mobile DOM injection: hide React app, show print content */
+  body.is-printing #root {
+    display: none !important;
+  }
+
+  body.is-printing #print-mount-point {
+    display: block !important;
+  }
+
+  /* Always show mount point during print */
+  #print-mount-point {
+    display: block;
+  }
+
+  /* Generic print document resets */
+  .print-container {
+    font-family: 'Inter', ui-sans-serif, sans-serif;
+    font-size: 12px;
+    color: #0f172a;
+    background: white;
+    padding: 0;
+    margin: 0;
+  }
+
+  .print-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 11px;
+  }
+
+  .print-table th {
+    background: #f1f5f9;
+    color: #475569;
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    padding: 7px 10px;
+    font-weight: 700;
+    border-bottom: 1px solid #cbd5e1;
+  }
+
+  .print-table td {
+    padding: 7px 10px;
+    border-bottom: 1px solid #e2e8f0;
+    color: #1e293b;
+  }
+
+  .print-monospace {
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+  }
+
+  .print-signature-row {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 50px;
+  }
+
+  .print-signature-box {
+    width: 40%;
+    border-top: 1px solid #94a3b8;
+    text-align: center;
+    padding-top: 6px;
+    font-size: 10px;
+    color: #64748b;
+  }
+}
