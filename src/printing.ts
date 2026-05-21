@@ -37,14 +37,38 @@ function printViaMobileDom(html: string, format: 'a4' | 'receipt'): void {
   // Force synchronous layout reflow so mobile browser paints the mount point before print dialog
   void mount.offsetHeight; 
 
-  const cleanup = () => {
-    const el = document.getElementById('print-mount-point');
-    if (el) el.remove();
-    document.body.classList.remove('is-printing', 'print-a4', 'print-receipt');
-    window.removeEventListener('afterprint', cleanup);
+  let cleaned = false;
+  const cleanup = (delay = 1000) => {
+    if (cleaned) return;
+    cleaned = true;
+
+    window.removeEventListener('afterprint', handleAfterPrint);
+    window.removeEventListener('focus', handleFocus);
+
+    setTimeout(() => {
+      const el = document.getElementById('print-mount-point');
+      if (el) el.remove();
+      document.body.classList.remove('is-printing', 'print-a4', 'print-receipt');
+    }, delay);
   };
 
-  window.addEventListener('afterprint', cleanup);
+  const handleAfterPrint = () => {
+    // If afterprint fires immediately, delay removal to let the mobile print spooler finish rendering
+    cleanup(3000);
+  };
+
+  const handleFocus = () => {
+    // If user returns focus to the window (dialog closed), clean up in 1 second
+    cleanup(1000);
+  };
+
+  window.addEventListener('afterprint', handleAfterPrint);
+  window.addEventListener('focus', handleFocus);
+
+  // Failsafe cleanup in case neither event fires or is supported correctly
+  setTimeout(() => {
+    cleanup(500);
+  }, 10000);
 
   // Use a longer timeout for mobile devices to reliably generate the PDF from the updated DOM
   setTimeout(() => {

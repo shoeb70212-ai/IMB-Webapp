@@ -409,9 +409,8 @@ body, main, aside, header, div, span, button, input, select, table, th, td {
     width: auto !important;
   }
 
-  /* Mobile DOM injection: hide React app, show print content */
-  body.is-printing > #root, 
-  body.is-printing > * {
+  /* Mobile DOM injection: hide React app and other elements, show print content only */
+  body.is-printing > *:not(#print-mount-point) {
     display: none !important;
   }
 
