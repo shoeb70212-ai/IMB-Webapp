@@ -480,7 +480,7 @@ export default function Lots() {
   };
 
   return (
-    <div className="flex-1 overflow-y-auto p-3 md:p-4 lg:p-6 space-y-4 lg:space-y-6 animate-fade-in bg-slate-950 text-slate-200">
+    <div className="flex-grow overflow-y-auto px-3.5 py-4 lg:p-6 pb-28 lg:pb-6 space-y-4 lg:space-y-6 animate-fade-in bg-slate-950 text-slate-200">
       {!selectedLotId ? (
         // LIST VIEW OF LOTS
         <>

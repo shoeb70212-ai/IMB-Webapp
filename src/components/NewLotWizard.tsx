@@ -660,7 +660,7 @@ export default function NewLotWizard({ onNavigate }: NewLotWizardProps) {
   const buyers = parties.filter(p => p.type === 'buyer');
 
   return (
-    <div className="flex-1 overflow-y-auto p-4 lg:p-6 space-y-4 lg:space-y-6 animate-fade-in">
+    <div className="flex-grow overflow-y-auto px-3.5 py-4 lg:p-6 pb-28 lg:pb-6 space-y-4 lg:space-y-6 animate-fade-in bg-slate-950 text-slate-200">
       {/* Toast */}
       {toastMsg && (
         <div className={`fixed bottom-4 right-4 z-50 px-6 py-3 rounded-xl shadow-xl font-medium text-sm border ${
@@ -886,7 +886,7 @@ export default function NewLotWizard({ onNavigate }: NewLotWizardProps) {
               <h3 className="text-sm lg:text-base font-bold text-white font-display mb-4">Crates List ({items.length} records)</h3>
               
               {/* Desktop Table view */}
-              <div className="hidden md:block overflow-x-auto max-h-[300px]">
+              <div className="hidden md:block overflow-x-auto">
                 {items.length === 0 ? (
                   <div className="py-12 flex flex-col items-center justify-center text-slate-500 text-sm">
                     <Layers className="w-10 h-10 mb-2 opacity-30" />
@@ -930,7 +930,7 @@ export default function NewLotWizard({ onNavigate }: NewLotWizardProps) {
               </div>
 
               {/* Mobile Card List view */}
-              <div className="md:hidden space-y-3 max-h-[300px] overflow-y-auto pr-1">
+              <div className="md:hidden space-y-3 pr-1">
                 {items.length === 0 ? (
                   <div className="py-12 flex flex-col items-center justify-center text-slate-500 text-xs">
                     <Layers className="w-8 h-8 mb-2 opacity-30" />
@@ -1095,7 +1095,7 @@ export default function NewLotWizard({ onNavigate }: NewLotWizardProps) {
               <h3 className="text-sm lg:text-base font-bold text-white font-display mb-4">Allocation Ledger ({allocations.length} items)</h3>
               
               {/* Desktop Table View */}
-              <div className="hidden md:block overflow-x-auto max-h-[300px]">
+              <div className="hidden md:block overflow-x-auto">
                 {allocations.length === 0 ? (
                   <div className="py-12 flex flex-col items-center justify-center text-slate-500 text-sm">
                     <Users className="w-10 h-10 mb-2 opacity-30" />
@@ -1151,7 +1151,7 @@ export default function NewLotWizard({ onNavigate }: NewLotWizardProps) {
               </div>
 
               {/* Mobile Card List View */}
-              <div className="md:hidden space-y-3 max-h-[300px] overflow-y-auto pr-1">
+              <div className="md:hidden space-y-3 pr-1">
                 {allocations.length === 0 ? (
                   <div className="py-12 flex flex-col items-center justify-center text-slate-500 text-xs">
                     <Users className="w-8 h-8 mb-2 opacity-30" />
@@ -1260,7 +1260,7 @@ export default function NewLotWizard({ onNavigate }: NewLotWizardProps) {
             <h3 className="text-base font-bold text-white font-display border-b border-slate-800 pb-3">
               Buyers Surcharge Ledger
             </h3>
-            <div className="space-y-4 max-h-[300px] overflow-y-auto pr-1">
+            <div className="space-y-4 pr-1">
               {summary.buyer_charges.length === 0 ? (
                 <p className="text-xs text-slate-500 py-6 text-center">No buyers allocated. Go back to step 3.</p>
               ) : (

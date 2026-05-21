@@ -459,7 +459,7 @@ export default function LabourWages() {
   };
 
   return (
-    <div className="flex-1 flex flex-col md:flex-row min-h-0 bg-slate-950 text-slate-200 animate-fade-in">
+    <div className="flex-grow flex flex-col md:flex-row min-h-0 bg-slate-950 text-slate-200 animate-fade-in">
       {/* Left panel: Directory list */}
       <div className={`w-full md:w-80 border-r border-slate-800/50 flex flex-col h-full bg-slate-950 flex-shrink-0 ${
         selectedWorkerId ? 'hidden md:flex' : 'flex'
@@ -538,7 +538,7 @@ export default function LabourWages() {
         selectedWorkerId ? 'flex' : 'hidden md:flex'
       }`}>
         {selectedWorker ? (
-          <div className="flex-1 flex flex-col h-full overflow-hidden">
+          <div className="flex-grow lg:flex-1 flex flex-col overflow-y-auto lg:overflow-hidden pb-28 lg:pb-0">
             {/* Header info */}
             <div className="p-6 border-b border-slate-800/50 bg-slate-900/10 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
               <div>

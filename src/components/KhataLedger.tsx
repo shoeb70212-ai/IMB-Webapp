@@ -244,7 +244,7 @@ export default function KhataLedger({ initialBuyer = null }: KhataLedgerProps) {
     : [];
 
   return (
-    <div className="flex-1 overflow-y-auto p-6 space-y-6 animate-fade-in">
+    <div className="flex-grow overflow-y-auto px-3.5 py-4 lg:p-6 pb-28 lg:pb-6 space-y-4 lg:space-y-6 animate-fade-in bg-slate-950 text-slate-200">
       {/* LEDGER DETAILS VIEW */}
       {selectedBuyer ? (
         <div className="space-y-6">

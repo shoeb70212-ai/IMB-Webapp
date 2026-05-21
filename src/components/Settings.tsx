@@ -3,10 +3,23 @@ import { db } from '../db';
 import { SystemSettings } from '../types';
 import { 
   Save, Download, Upload, ShieldAlert, Check, Plus, Trash2, 
-  Settings as SettingsIcon, Image, AlertTriangle 
+  Settings as SettingsIcon, Image, AlertTriangle, Sliders 
 } from 'lucide-react';
 
 export default function Settings() {
+  // Local state for app scaling
+  const [appScale, setAppScale] = useState<string>(() => {
+    return localStorage.getItem('ca_app_scale') || 'standard';
+  });
+
+  const handleScaleChange = (scale: string) => {
+    setAppScale(scale);
+    localStorage.setItem('ca_app_scale', scale);
+    window.dispatchEvent(new Event('settings-updated'));
+    setSuccessMsg(`Webapp scale changed to ${scale.replace('-', ' ')}!`);
+    setTimeout(() => setSuccessMsg(''), 2550);
+  };
+
   // Local state for settings
   const [settings, setSettings] = useState<SystemSettings>({
     business_name: '',
@@ -263,7 +276,7 @@ export default function Settings() {
   };
 
   return (
-    <div className="flex-1 overflow-y-auto p-6 space-y-6 animate-fade-in bg-slate-950 text-slate-200">
+    <div className="flex-grow overflow-y-auto px-3.5 py-4 lg:p-6 pb-28 lg:pb-6 space-y-4 lg:space-y-6 animate-fade-in bg-slate-950 text-slate-200">
       {/* Header */}
       <div>
         <h1 className="text-3xl font-extrabold tracking-tight text-white font-display flex items-center gap-2">
@@ -419,6 +432,73 @@ export default function Settings() {
               </div>
             </div>
           </div>
+
+          {/* DISPLAY & WEBAPP SCALING */}
+          <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 shadow-xl space-y-4">
+            <div>
+              <h3 className="text-base font-bold text-white font-display flex items-center gap-2">
+                <Sliders className="w-5 h-5 text-blue-500" />
+                <span>Display & Webapp Scaling</span>
+              </h3>
+              <p className="text-slate-400 text-xs mt-1">Adjust the general scale and content density of the entire application interface to match your preference.</p>
+            </div>
+
+            <div className="grid grid-cols-2 md:grid-cols-5 gap-2.5">
+              {[
+                { id: 'extra-compact', label: '80%', title: 'Extra Compact', desc: '13px base' },
+                { id: 'compact', label: '90%', title: 'Compact', desc: '14.5px base' },
+                { id: 'standard', label: '100%', title: 'Standard', desc: '16px base' },
+                { id: 'spacious', label: '110%', title: 'Spacious', desc: '17.5px base' },
+                { id: 'extra-spacious', label: '120%', title: 'Extra Spacious', desc: '19px base' },
+              ].map((tier) => {
+                const isSelected = appScale === tier.id;
+                return (
+                  <button
+                    key={tier.id}
+                    type="button"
+                    onClick={() => handleScaleChange(tier.id)}
+                    className={`flex flex-col items-center justify-between p-3 rounded-2xl border text-center cursor-pointer transition-all duration-300 relative group ${
+                      isSelected
+                        ? 'bg-blue-600/10 border-blue-500 text-white shadow-lg shadow-blue-500/5'
+                        : 'bg-slate-950 border-slate-800 text-slate-400 hover:border-slate-700 hover:text-slate-200'
+                    }`}
+                  >
+                    {isSelected && (
+                      <span className="absolute top-2 right-2 w-3.5 h-3.5 rounded-full bg-blue-600 flex items-center justify-center text-white">
+                        <Check className="w-2 h-2 stroke-[3]" />
+                      </span>
+                    )}
+                    <span className={`text-base font-black font-mono tracking-tight transition duration-200 ${
+                      isSelected ? 'text-blue-400' : 'text-slate-500 group-hover:text-slate-350'
+                    }`}>
+                      {tier.label}
+                    </span>
+                    <div className="mt-2 text-center w-full">
+                      <h4 className="text-[10px] font-bold truncate leading-none">{tier.title}</h4>
+                      <p className="text-[8px] text-slate-500 font-mono mt-1 leading-none">{tier.desc}</p>
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Scale live preview demo */}
+            <div className="p-4 bg-slate-950 border border-slate-850 rounded-2xl flex flex-col gap-2 mt-2">
+              <span className="text-[10px] text-slate-500 font-mono uppercase font-bold tracking-wider leading-none">Density Live Preview</span>
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-lg bg-blue-500/10 border border-blue-500/20 flex items-center justify-center shrink-0">
+                  <span className="text-xs font-bold text-blue-400">Aa</span>
+                </div>
+                <div>
+                  <h5 className="text-xs font-bold text-white leading-none">Sample Heading & Balance</h5>
+                  <p className="text-[10px] text-slate-400 font-mono mt-1 leading-none">₹45,200 Commission Paid • 18 Lots</p>
+                </div>
+                <span className="ml-auto px-2 py-0.5 rounded bg-emerald-500/10 border border-emerald-500/20 text-[9px] font-bold text-emerald-400 uppercase tracking-widest leading-none">
+                  Active Preview
+                </span>
+              </div>
+            </div>
+          </div>
         </div>
 
         {/* SECTION 2: LIST OPTIONS & DATABASE BACKUPS */}
@@ -442,7 +522,7 @@ export default function Settings() {
               </button>
             </div>
 
-            <div className="flex flex-wrap gap-1.5 max-h-40 overflow-y-auto p-1">
+            <div className="flex flex-wrap gap-1.5 p-1">
               {settings.fruit_types.map(f => (
                 <span key={f} className="inline-flex items-center gap-1 pl-2.5 pr-1 py-1 bg-slate-950 border border-slate-800 rounded-xl text-[10px] font-bold text-slate-300">
                   <span>{f}</span>
@@ -483,7 +563,7 @@ export default function Settings() {
               </button>
             </div>
 
-            <div className="space-y-1.5 max-h-40 overflow-y-auto pr-1">
+            <div className="space-y-1.5 pr-1">
               {settings.quality_grades.map(g => (
                 <div key={g} className="flex justify-between items-center px-3 py-1.5 bg-slate-950 border border-slate-800 rounded-xl text-xs">
                   <span className="font-bold text-white">{g}</span>

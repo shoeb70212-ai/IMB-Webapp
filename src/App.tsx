@@ -52,6 +52,24 @@ export default function App() {
     localStorage.setItem('ca_theme', theme);
   }, [theme]);
 
+  // Global App Scaling State & Syncer
+  const [appScale, setAppScale] = useState<string>(() => {
+    return localStorage.getItem('ca_app_scale') || 'standard';
+  });
+
+  useEffect(() => {
+    const scaleMap: Record<string, string> = {
+      'extra-compact': '13px',
+      'compact': '14.5px',
+      'standard': '16px',
+      'spacious': '17.5px',
+      'extra-spacious': '19px'
+    };
+    const fontSize = scaleMap[appScale] || '16px';
+    document.documentElement.style.fontSize = fontSize;
+    localStorage.setItem('ca_app_scale', appScale);
+  }, [appScale]);
+
   // Read settings and draft state
   const checkSettingsAndDrafts = () => {
     try {
@@ -92,13 +110,19 @@ export default function App() {
     // Listen to custom settings-updated event from Settings.tsx
     const handleSettingsUpdate = () => {
       checkSettingsAndDrafts();
+      const storedScale = localStorage.getItem('ca_app_scale') || 'standard';
+      setAppScale(storedScale);
     };
 
     // Listen to draft changes by polling/intercepting or on mount
     window.addEventListener('settings-updated', handleSettingsUpdate);
     
-    // Also set up a small interval to check for draft changes if pages update it in the background
-    const interval = setInterval(checkSettingsAndDrafts, 2000);
+    // Also set up a small interval to check for draft and scale changes in the background
+    const interval = setInterval(() => {
+      checkSettingsAndDrafts();
+      const storedScale = localStorage.getItem('ca_app_scale') || 'standard';
+      setAppScale(prev => prev !== storedScale ? storedScale : prev);
+    }, 2000);
 
     return () => {
       window.removeEventListener('settings-updated', handleSettingsUpdate);

@@ -195,7 +195,7 @@ export default function Dashboard({ onNavigate }: DashboardProps) {
     .slice(0, 5);
 
   return (
-    <div className="flex-1 overflow-y-auto px-3 py-4 lg:p-6 space-y-4 lg:space-y-6 animate-fade-in bg-slate-950 text-slate-200">
+    <div className="flex-grow overflow-y-auto px-3.5 py-4 lg:p-6 pb-28 lg:pb-6 space-y-4 lg:space-y-6 animate-fade-in bg-slate-950 text-slate-200">
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 lg:gap-4">
         <div>
@@ -407,7 +407,7 @@ export default function Dashboard({ onNavigate }: DashboardProps) {
       {/* Visual Chart & Recents */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Commission Chart */}
-        <div className="lg:col-span-2 glass-panel rounded-2xl p-4 lg:p-5 flex flex-col h-[280px] lg:h-[350px]">
+        <div className="lg:col-span-2 glass-panel rounded-2xl p-3.5 lg:p-5 flex flex-col h-[215px] lg:h-[350px]">
           <div className="flex justify-between items-center mb-4">
             <h3 className="text-sm lg:text-base font-bold text-white font-display">Daily Commission History</h3>
             <span className="text-[10px] text-slate-500 font-mono font-medium">Last 14 Days</span>
@@ -418,7 +418,7 @@ export default function Dashboard({ onNavigate }: DashboardProps) {
         </div>
 
         {/* Top Buyers */}
-        <div className="glass-panel rounded-2xl p-4 lg:p-5 flex flex-col h-[280px] lg:h-[350px]">
+        <div className="glass-panel rounded-2xl p-3.5 lg:p-5 flex flex-col h-[215px] lg:h-[350px]">
           <h3 className="text-sm lg:text-base font-bold text-white font-display mb-4">Top Debtors (Khata)</h3>
           <div className="flex-1 overflow-y-auto space-y-3 pr-1">
             {topBuyers.length === 0 ? (
