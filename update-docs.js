@@ -1,8 +1,8 @@
 import fs from 'fs';
 import path from 'path';
 
-const sessionPath = './session.md';
-const handoffPath = './handoff.md';
+const sessionPath = './docs/session.md';
+const handoffPath = './docs/handoff.md';
 
 function getTimestamp() {
   return new Date().toISOString();
